@@ -49,6 +49,8 @@ echo -e $orange "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24
 echo -ne $green "IP/IPRange : ";tput sgr0
 read ip
 echo ""
+echo -e $green "Press CRTL-C if you want to scanner "
+echo ""
 echo  -e "\033[33;7mScanning $ip \033[0m" & nohup masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1  
 sleep 1
 if [ ! -f "$mass" ]
