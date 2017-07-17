@@ -54,10 +54,33 @@ echo -e $orange "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24
 echo -ne $green "IP/IPRange : ";tput sgr0
 read ip
 echo ""
+val="0.0.0.0/0"
+if [ $ip == $val ]
+then
+echo -e $cyan "Scanning the whole internet will take hours to finish"
+echo ""
+echo -ne $green "Do you still want to continue ? (y/N)";tput sgr0
+read opt
+case $opt in
+y|Y|yes|YES|Yes)
+echo -e $green "Press CRTL-C if you want to stop the scanner "
+echo ""
+echo  -e "\033[33;7mScanning Please Wait\033[0m"
+masscan $ip -p 445 --exclude 255.255.255.255 --output-filename $mass >/dev/null 2>&1
+;;
+n|N|No|NO)
+exit 1
+;;
+*)
+exit 1
+;;
+esac
+else
 echo -e $green "Press CRTL-C if you want to stop the scanner "
 echo ""
 echo  -e "\033[33;7mScanning Please Wait\033[0m"
 masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1
+fi
 echo ""
 if [ ! -f "$mass" ]
 then
