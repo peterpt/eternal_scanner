@@ -94,5 +94,5 @@ echo ""
 echo -e $green "Vulnerable ips found"
 echo $vuln
 echo "---------------------------------------"
-echo -e $yellow "Eternal Scanner saved a file with vulnerable ips to $path/vuln.txt
+echo -e $yellow "Eternal Scanner saved a file with vulnerable ips to $path/vuln.txt"
 fi
