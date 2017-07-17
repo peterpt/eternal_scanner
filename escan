@@ -54,6 +54,12 @@ echo -e $orange "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24
 echo -ne $green "IP/IPRange : ";tput sgr0
 read ip
 echo ""
+val0="0.0.0.0"
+if [ $ip == $val0 ]
+then
+echo -e $red "$ip is not valid"
+exit 1
+fi
 val="0.0.0.0/0"
 if [ $ip == $val ]
 then
