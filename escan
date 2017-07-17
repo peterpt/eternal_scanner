@@ -1,0 +1,96 @@
+#!/bin/bash  
+# Eternal Scanner 1.0 by peterpt             
+# https://github.com/peterpt/eternal_scanner 
+#
+# Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
+# https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
+#
+
+cyan='\e[0;36m'
+green='\033[92m'
+red='\e[1;31m'
+yellow='\e[0;33m'
+orange='\e[38;5;166m'
+path=`pwd`
+which msfconsole > /dev/null 2>&1
+      if [ "$?" -eq "0" ]; then
+      echo
+else
+   echo -e $red "Metasploit Framework Missing"
+exit 1
+fi  
+which masscan > /dev/null 2>&1
+      if [ "$?" -eq "0" ]; then
+      echo
+else
+   echo -e $red "Masscan Missing"
+exit 1
+fi           
+echo -e $green " ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    "     
+echo -e $green " ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    "   
+echo -e $green " ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    "   
+echo -e $green " ▐█▄▄▌ ▐█▌·▐█▄▄▌▐█•█▌██▐█▌▐█ ▪▐▌▐█▌▐▌  "   
+echo -e $green "  ▀▀▀  ▀▀▀  ▀▀▀ .▀  ▀▀▀ █▪ ▀  ▀ .▀▀▀   "   
+echo -e $green " .▄▄ ·  ▄▄·  ▄▄▄·  ▐ ▄  ▐ ▄ ▄▄▄ .▄▄▄   "   
+echo -e $green " ▐█ ▀. ▐█ ▌▪▐█ ▀█ •█▌▐█•█▌▐█▀▄.▀·▀▄ █· "   
+echo -e $green " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐▌▐█▐▐▌▐▀▀▪▄▐▀▀▄  "   
+echo -e $green " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
+echo -e $green "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.0"
+
+rm -f masscan  >/dev/null 2>&1
+rm -f msfip  >/dev/null 2>&1
+rm -f msf.rc  >/dev/null 2>&1
+rm -f msflog.logs >/dev/null 2>&1
+rm -f paused.conf >/dev/null 2>&1
+rm -f nohup.out >/dev/null 2>&1
+mass=$path/masscan
+echo ""
+echo -e $orange "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24"
+echo -ne $green "IP/IPRange : ";tput sgr0
+read ip
+echo ""
+echo  -e "\033[33;7mScanning $ip \033[0m" & nohup masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1  
+sleep 1
+if [ ! -f "$mass" ]
+then
+echo -e $yellow "Scanner results not found"
+exit 1
+fi
+cat $mass | grep 'addr=' | awk '{print $3}' | sed -e s/addr=//g |  cut -d '"' -f 2 | tr " " "\n" >msfip
+msfips=$path/msfip
+if [ ! -s $msfips ]
+then
+echo -e $yellow "Scanner did not detect any host on this $ip with port 445 opened."
+exit 1
+fi
+echo "spool $path/msflog.logs" > msf.rc
+echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
+paste -sd, msfip            \
+|sed 's/^/set rhosts /; s/,/, /g'  \
+>>msf.rc
+echo "exploit" >> msf.rc
+echo "quit -y" >> msf.rc
+echo ""
+echo -e $orange "       Checking ips :"
+echo -e $yellow "----------------------------"
+echo -e $green ""
+cat $path/msfip
+echo ""
+echo -e $yellow "----------------------------"
+echo ""
+echo -e $green "Checking if the ips above are vulnerable"
+echo  -e "\033[33;7mPlease Wait\033[0m"
+nohup msfconsole -r $path/msf.rc >/dev/null 2>&1
+vuln=`cat msflog.logs | grep "MS17-010" | awk '{print$2}'`
+if [ -z $vuln ]
+then
+echo ""
+echo -e $red "No vulnerable ips were found on this ip: $ip range"
+else
+echo $vuln > $path/vuln.txt
+echo ""
+echo -e $green "Vulnerable ips found"
+echo $vuln
+echo "---------------------------------------"
+echo -e $yellow "Eternal Scanner saved a file with vulnerable ips to $path/vuln.txt
+fi
