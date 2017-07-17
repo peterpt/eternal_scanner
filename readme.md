@@ -1,14 +1,14 @@
-* ETERNAL SCANNER 1.0
+## ETERNAL SCANNER 1.0
 
 Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 .
 
-* Requirements
+# Requirements
 - masscan
 - metasploit-framework
 
-* How to Install
+# How to Install
 - git clone https://github.com/peterpt/eternal_scanner.git
 - cd eternal_scanner && ./escan
 
-* Install Requirements
+# Install Requirements
 - apt-get install masscan metasploit-framework
