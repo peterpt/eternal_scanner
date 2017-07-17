@@ -5,6 +5,11 @@
 # Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
 # https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
 #
+trap ctrl_c INT
+ctrl_c() {
+
+pkill -f masscan* > /dev/null 2>&1
+}
 
 cyan='\e[0;36m'
 green='\033[92m'
@@ -51,8 +56,9 @@ read ip
 echo ""
 echo -e $green "Press CRTL-C if you want to stop the scanner "
 echo ""
-echo  -e "\033[33;7mScanning $ip \033[0m" & nohup masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1  
-sleep 1
+echo  -e "\033[33;7mScanning Please Wait\033[0m"
+masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1
+echo ""
 if [ ! -f "$mass" ]
 then
 echo -e $yellow "Scanner results not found"
@@ -82,12 +88,12 @@ echo -e $yellow "----------------------------"
 echo ""
 echo -e $green "Checking if the ips above are vulnerable"
 echo  -e "\033[33;7mPlease Wait\033[0m"
-nohup msfconsole -r $path/msf.rc >/dev/null 2>&1
+msfconsole -r $path/msf.rc >/dev/null 2>&1
 vuln=`cat msflog.logs | grep "MS17-010" | awk '{print$2}'`
 if [ -z $vuln ]
 then
 echo ""
-echo -e $red "No vulnerable ips were found on this ip: $ip range"
+echo -e $red "No vulnerable targets were found on : $ip range"
 else
 echo $vuln > $path/vuln.txt
 echo ""
