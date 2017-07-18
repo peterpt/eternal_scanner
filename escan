@@ -130,17 +130,18 @@ then
 echo ""
 echo -e $red "No vulnerable targets were found on : $ip range"
 else
-lm=`cat $vuln | wc -l`
 op=$path/vuln.txt
 if [ -f $op ]; then
-echo $vuln >> $path/temp.txt
-tr " " "\n" <$path/temp.txt >vuln.txt
-rm -f $path/temp.txt >/dev/null 2>&1
+echo $vuln > $path/temp.txt
+tr " " "\n" <$path/temp.txt >>vuln.txt
 else
 echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $op 
 echo "------------------------------------------------------------------------------" >> $op
-echo $vuln >> $path/vuln.txt
+echo $vuln > $path/temp.txt
+tr " " "\n" <$path/temp.txt >>vuln.txt
 fi
+lm=`cat $path/temp.txt | wc -l`
+rm -f $path/temp.txt >/dev/null 2>&1
 echo ""
 echo -e $green "$lm Vulnerable ips found"
 echo $vuln
