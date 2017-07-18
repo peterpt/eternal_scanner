@@ -7,8 +7,14 @@
 #
 trap ctrl_c INT
 ctrl_c() {
-
+if [ $stat == "0" ]
+then
+clear
+exit 1
+elif [ $stat == "1" ]
+then
 pkill -f masscan* > /dev/null 2>&1
+fi
 }
 
 cyan='\e[0;36m'
@@ -30,7 +36,9 @@ which masscan > /dev/null 2>&1
 else
    echo -e $red "Masscan Missing"
 exit 1
-fi           
+fi 
+
+stat="0"       
 echo -e $green " ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    "     
 echo -e $green " ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    "   
 echo -e $green " ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    "   
@@ -67,12 +75,14 @@ echo -e $cyan "Scanning the whole internet will take hours to finish"
 echo ""
 echo -ne $green "Do you still want to continue ? (y/N)";tput sgr0
 read opt
+echo ""
 case $opt in
 y|Y|yes|YES|Yes)
 echo -e $green "Press CRTL-C if you want to stop the scanner "
 echo ""
 echo  -e "\033[33;7mScanning Please Wait\033[0m"
-masscan $ip -p 445 --exclude 255.255.255.255 --rate 1000 --output-filename $mass >/dev/null 2>&1
+stat="1"
+masscan $ip -p 445 --exclude 255.255.255.255 --output-filename $mass >/dev/null 2>&1
 ;;
 n|N|No|NO)
 exit 1
@@ -85,6 +95,7 @@ else
 echo -e $green "Press CRTL-C if you want to stop the scanner "
 echo ""
 echo  -e "\033[33;7mScanning $ip , Please Wait\033[0m"
+stat="1"
 masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1
 fi
 echo ""
