@@ -51,7 +51,7 @@ rm -f nohup.out >/dev/null 2>&1
 mass=$path/masscan
 echo ""
 echo -e $orange "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24"
-echo -ne $green "IP/IPRange : ";tput sgr0
+echo -ne $green "IP/IP Range : ";tput sgr0
 read ip
 echo ""
 val0="0.0.0.0"
@@ -72,7 +72,7 @@ y|Y|yes|YES|Yes)
 echo -e $green "Press CRTL-C if you want to stop the scanner "
 echo ""
 echo  -e "\033[33;7mScanning Please Wait\033[0m"
-masscan $ip -p 445 --exclude 255.255.255.255 --output-filename $mass >/dev/null 2>&1
+masscan $ip -p 445 --exclude 255.255.255.255 --rate 1000 --output-filename $mass >/dev/null 2>&1
 ;;
 n|N|No|NO)
 exit 1
@@ -84,7 +84,7 @@ esac
 else
 echo -e $green "Press CRTL-C if you want to stop the scanner "
 echo ""
-echo  -e "\033[33;7mScanning Please Wait\033[0m"
+echo  -e "\033[33;7mScanning $ip , Please Wait\033[0m"
 masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1
 fi
 echo ""
@@ -114,9 +114,15 @@ echo -e $green ""
 cat $path/msfip
 echo ""
 echo -e $yellow "----------------------------"
+lc=`cat $path/msfip | wc -l`
+echo "Collected $lc ips"
 echo ""
-echo -e $green "Checking if the ips above are vulnerable"
-echo  -e "\033[33;7mPlease Wait\033[0m"
+echo -e $yellow "Checking if the $lc ips above are vulnerable"
+echo ""
+echo -e $green "Press CTRL + C if you want to stop ips vulnerability check"
+echo -e $green "(aborting this process now will not verify all collected ips)"
+echo ""
+echo -e "\033[33;7mPlease Wait , checking $lc ips may take a while\033[0m"
 msfconsole -r $path/msf.rc >/dev/null 2>&1
 vuln=`cat msflog.logs | grep "MS17-010" | awk '{print$2}'`
 if [ -z $vuln ]
@@ -124,9 +130,19 @@ then
 echo ""
 echo -e $red "No vulnerable targets were found on : $ip range"
 else
-echo $vuln > $path/vuln.txt
+lm=`cat $vuln | wc -l`
+op=$path/vuln.txt
+if [ -f $op ]; then
+echo $vuln >> $path/temp.txt
+tr " " "\n" <$path/temp.txt >vuln.txt
+rm -f $path/temp.txt >/dev/null 2>&1
+else
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $op 
+echo "------------------------------------------------------------------------------" >> $op
+echo $vuln >> $path/vuln.txt
+fi
 echo ""
-echo -e $green "Vulnerable ips found"
+echo -e $green "$lm Vulnerable ips found"
 echo $vuln
 echo "---------------------------------------"
 echo -e $yellow "Eternal Scanner saved a file with vulnerable ips to $path/vuln.txt"
