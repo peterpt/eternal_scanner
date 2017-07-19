@@ -1,6 +1,6 @@
  ## ETERNAL SCANNER 1.0 (Changelog)
 
-* v1.0 - Multiple functions added and implementes speed rate switch for masscan
+* v1.0 - Multiple functions added and implementeds speed rate switch for masscan
 * v1.0 - Multiples bug fixes
 * v1.0 - Interrupt CTRL+C new implementations 
 * v1.0 - Multiple User display text changes & Fixes
