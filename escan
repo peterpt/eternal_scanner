@@ -6,39 +6,21 @@
 # https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
 #
 rt="500"
-msfm() {
-mlog="$path/msflog.log"
-if [ ! -f "$mlog" ]
-then 
-a=""
-sleep 5
-msfm
-else
-gmsft=`grep "Scanned" $path/msflog.log | tail -1`
-if [ "$gmsft" == "$a" ]
-then 
-sleep 5
-else
-echo $gmsft
-a="$gmsft"
-sleep 5
-fi
-fi
-} 
 trap ctrl_c INT
-ctrl_c() {
+function ctrl_c() {
 if [ "$stat" == "0" ]
 then
 clear
 exit 1
 elif [ "$stat" == "1" ]
 then
-pkill -f masscan* > /dev/null 2>&1
+pkill -f masscan* >/dev/null 2>&1
 elif [ "$stat" == "2" ]
 then 
-pkill -f msfconsole* > /dev/null 2>&1
+pkill -f msfconsole* >/dev/null 2>&1
 fi
 }
+
 start (){
 #setup colors
 cyan='\e[0;36m'
@@ -166,30 +148,12 @@ echo "Collected $lc ips"
 echo ""
 echo -e "$yellow" "Checking if the $lc ips above are vulnerable"
 echo ""
-echo -e "$green" "Press CTRL + C (1X ONLY) if you want to stop ips vulnerability check"
+echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop ips vulnerability check"
 echo -e "$green" "(aborting this process now will not verify all collected ips)"
 echo ""
 echo -e "\033[33;7mPlease Wait , checking $lc ips may take a while\033[0m"
 stat="2"
-msfconsole -r $path/msf.rc >/dev/null 2>&1 & PID=$!
-while kill -0 $PID 2> /dev/null; do 
-    mlog="$path/msflog.log"
-    if [ ! -f "$mlog" ]
-    then
-    msfm
-    else
-    gmsft=`grep "Scanned" $path/msflog.log | tail -1`
-    if [ "$gmsft" == "$a" ]
-    then
-    a="$gmsft"
-    else
-    echo "$gmsft"
-    a="$gmsft"
-    sleep 5
-    msfm
-    fi
-fi
-done
+msfconsole -r $path/msf.rc >/dev/null 2>&1 
 stat="0"
 vuln=`cat msflog.log | grep "MS17-010" | awk '{print$2}'`
 
