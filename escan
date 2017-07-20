@@ -5,89 +5,112 @@
 # Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
 # https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
 #
+rt="500"
+msfm() {
+mlog="$path/msflog.log"
+if [ ! -f "$mlog" ]
+then 
+a=""
+sleep 5
+msfm
+else
+gmsft=`grep "Scanned" $path/msflog.log | tail -1`
+if [ "$gmsft" == "$a" ]
+then 
+sleep 5
+else
+echo $gmsft
+a="$gmsft"
+sleep 5
+fi
+fi
+} 
 trap ctrl_c INT
 ctrl_c() {
-if [ $stat == "0" ]
+if [ "$stat" == "0" ]
 then
 clear
 exit 1
-elif [ $stat == "1" ]
+elif [ "$stat" == "1" ]
 then
 pkill -f masscan* > /dev/null 2>&1
+elif [ "$stat" == "2" ]
+then 
+pkill -f msfconsole* > /dev/null 2>&1
 fi
 }
-
+start (){
 #setup colors
 cyan='\e[0;36m'
 green='\033[92m'
 red='\e[1;31m'
 yellow='\e[0;33m'
 orange='\e[38;5;166m'
-path=`pwd`
+path=$(pwd)
 
 #Check dependencies
 which msfconsole > /dev/null 2>&1
       if [ "$?" -eq "0" ]; then
       echo
 else
-   echo -e $red "Metasploit Framework Missing"
+   echo -e "$red" "Metasploit Framework Missing"
 exit 1
 fi  
 which masscan > /dev/null 2>&1
       if [ "$?" -eq "0" ]; then
       echo
 else
-   echo -e $red "Masscan Missing"
+   echo -e "$red" "Masscan Missing"
 exit 1
 fi 
 
 stat="0"       
-echo -e $green " ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    "     
-echo -e $green " ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    "   
-echo -e $green " ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    "   
-echo -e $green " ▐█▄▄▌ ▐█▌·▐█▄▄▌▐█•█▌██▐█▌▐█ ▪▐▌▐█▌▐▌  "   
-echo -e $green "  ▀▀▀  ▀▀▀  ▀▀▀ .▀  ▀▀▀ █▪ ▀  ▀ .▀▀▀   "   
-echo -e $green " .▄▄ ·  ▄▄·  ▄▄▄·  ▐ ▄  ▐ ▄ ▄▄▄ .▄▄▄   "   
-echo -e $green " ▐█ ▀. ▐█ ▌▪▐█ ▀█ •█▌▐█•█▌▐█▀▄.▀·▀▄ █· "   
-echo -e $green " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐▌▐█▐▐▌▐▀▀▪▄▐▀▀▄  "   
-echo -e $green " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
-echo -e $green "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.0"
+echo -e "$green" " ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    "     
+echo -e "$green" " ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    "   
+echo -e "$green" " ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    "   
+echo -e "$green" " ▐█▄▄▌ ▐█▌·▐█▄▄▌▐█•█▌██▐█▌▐█ ▪▐▌▐█▌▐▌  "   
+echo -e "$green" "  ▀▀▀  ▀▀▀  ▀▀▀ .▀  ▀▀▀ █▪ ▀  ▀ .▀▀▀   "   
+echo -e "$green" " .▄▄ ·  ▄▄·  ▄▄▄·  ▐ ▄  ▐ ▄ ▄▄▄ .▄▄▄   "   
+echo -e "$green" " ▐█ ▀. ▐█ ▌▪▐█ ▀█ •█▌▐█•█▌▐█▀▄.▀·▀▄ █· "   
+echo -e "$green" " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐▌▐█▐▐▌▐▀▀▪▄▐▀▀▄  "   
+echo -e "$green" " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
+echo -e "$green" "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.0"
 echo ""
-#echo -e $orange "For switches write ./escan -h"
+echo -e "$orange" "For switches write ./escan -h"
 rm -f masscan  >/dev/null 2>&1
 rm -f msfip  >/dev/null 2>&1
 rm -f msf.rc  >/dev/null 2>&1
-rm -f msflog.logs >/dev/null 2>&1
+rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
-rm -f tmp.txt >/dev/null 2>&1
-rm -f tmp1.txt >/dev/null 2>&1
-mass=$path/masscan
+rm -f temp1.txt >/dev/null 2>&1
+rm -f temp.txt >/dev/null 2>&1
+mass="$path/masscan"
 echo ""
-echo -e $orange "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24"
-echo -ne $green "IP/IP Range : ";tput sgr0
-read ip
+echo -e "$orange" "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24"
+echo -ne "$green" "IP/IP Range : ";tput sgr0
+read -r ip
 echo ""
 val0="0.0.0.0"
-if [ $ip == $val0 ]
+if [ "$ip" == "$val0" ]
 then
-echo -e $red "$ip is not valid"
+echo -e "$red" "$ip is not valid"
 exit 1
 fi
 val="0.0.0.0/0"
-if [ $ip == $val ]
+if [ "$ip" == "$val" ]
 then
-echo -e $cyan "Scanning the whole internet will take hours to finish"
+echo -e "$cyan" "Scanning the whole internet will take hours to finish"
 echo ""
-echo -ne $green "Do you still want to continue ? (y/N) : ";tput sgr0
-read opt
+echo -ne "$green" "Do you still want to continue ? (y/N) : ";tput sgr0
+read -r opt
 echo ""
-case $opt in
+case "$opt" in
 y|Y|yes|YES|Yes)
-echo -e $green "Press CRTL-C if you want to stop the scanner "
+echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop the scanner "
 echo ""
-echo  -e "\033[33;7mScanning $ip , Please Wait\033[0m"
+echo  -ne "\033[33;7mScanning $ip , Please Wait\033[0m"
 stat="1"
-masscan $ip -p 445 --exclude 255.255.255.255 --output-filename $mass >/dev/null 2>&1
+masscan "$ip" -p 445 --rate "$rt" --exclude 255.255.255.255 --output-filename "$mass" >/dev/null 2>&1
 ;;
 n|N|No|NO)
 exit 1
@@ -97,34 +120,34 @@ exit 1
 ;;
 esac
 else
-echo -e $green "Press CRTL-C if you want to stop the scanner "
+echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop the scanner "
 echo ""
-echo  -e "\033[33;7mScanning $ip , Please Wait\033[0m"
+echo  -ne "\033[33;7mScanning $ip , Please Wait\033[0m"
 stat="1"
-masscan $ip -p 445 --output-filename $mass >/dev/null 2>&1
+masscan "$ip" -p 445 --rate "$rt" --output-filename "$mass" >/dev/null 2>&1
 fi
 echo ""
 
 #Check if masscan created an output file
 if [ ! -f "$mass" ]
 then
-echo -e $yellow "Scanner results not found"
+echo -e "$yellow" "Scanner results not found"
 exit 1
 fi
 
 #parser masscan output and grab only the ips
-cat $mass | grep 'addr=' | awk '{print $3}' | sed -e s/addr=//g |  cut -d '"' -f 2 | tr " " "\n" >msfip
-msfips=$path/msfip
+cat "$mass" | grep 'addr=' | awk '{print $3}' | sed -e s/addr=//g |  cut -d '"' -f 2 | tr " " "\n" >msfip
+msfips="$path/msfip"
 
 #check if there was any ip detected with port 445 opened
-if [ ! -s $msfips ]
+if [ ! -s "$msfips" ]
 then
-echo -e $yellow "Scanner did not detect any host on this $ip with port 445 opened."
+echo -e "$yellow" "Scanner did not detect any host on this $ip with port 445 opened."
 exit 1
 fi
-
+stat="0"
 #metasploit execution script
-echo "spool $path/msflog.logs" > msf.rc
+echo "spool $path/msflog.log" > msf.rc
 echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
 paste -sd, msfip            \
 |sed 's/^/set rhosts /; s/,/, /g'  \
@@ -132,40 +155,62 @@ paste -sd, msfip            \
 echo "exploit" >> msf.rc
 echo "quit -y" >> msf.rc
 echo ""
-echo -e $orange "       Checking ips :"
-echo -e $yellow "----------------------------"
-echo -e $green ""
-cat $path/msfip
+echo -e "$orange" "       Checking ips :"
+echo -e "$yellow" "----------------------------"
+echo -e "$green" ""
+cat "$path/msfip"
 echo ""
-echo -e $yellow "----------------------------"
+echo -e "$yellow" "----------------------------"
 lc=`cat $path/msfip | wc -l`
 echo "Collected $lc ips"
 echo ""
-echo -e $yellow "Checking if the $lc ips above are vulnerable"
+echo -e "$yellow" "Checking if the $lc ips above are vulnerable"
 echo ""
-echo -e $green "Press CTRL + C if you want to stop ips vulnerability check"
-echo -e $green "(aborting this process now will not verify all collected ips)"
+echo -e "$green" "Press CTRL + C (1X ONLY) if you want to stop ips vulnerability check"
+echo -e "$green" "(aborting this process now will not verify all collected ips)"
 echo ""
 echo -e "\033[33;7mPlease Wait , checking $lc ips may take a while\033[0m"
-msfconsole -r $path/msf.rc >/dev/null 2>&1
-vuln=`cat msflog.logs | grep "MS17-010" | awk '{print$2}'`
+stat="2"
+msfconsole -r $path/msf.rc >/dev/null 2>&1 & PID=$!
+while kill -0 $PID 2> /dev/null; do 
+    mlog="$path/msflog.log"
+    if [ ! -f "$mlog" ]
+    then
+    msfm
+    else
+    gmsft=`grep "Scanned" $path/msflog.log | tail -1`
+    if [ "$gmsft" == "$a" ]
+    then
+    a="$gmsft"
+    else
+    echo "$gmsft"
+    a="$gmsft"
+    sleep 5
+    msfm
+    fi
+fi
+done
+stat="0"
+vuln=`cat msflog.log | grep "MS17-010" | awk '{print$2}'`
 
 #Check if msf logs got any positive result
-if [ -z $vuln ]
+vuln1=`cat msflog.log | grep "MS17-010" | awk '{print$2}' | sed -n 1p`
+if [ -z "$vuln1" ]
 then
 echo ""
-echo -e $red "No vulnerable targets were found on : $ip range"
+echo -e "$red" "No vulnerable targets were found on : $ip range"
 else
-op=$path/vuln.txt
+op="$path/vuln.txt"
 
 #Check if vulnerability list file exists in ES
-if [ -f $op ]; then
-echo $vuln > $path/temp.txt
+if [ -f "$op" ]; then
+echo "$vuln" > $path/temp.txt
 tr " " "\n" <$path/temp.txt >temp1.txt
 
 #Write new detections to last line in vuln.txt
 tr " " "\n" <$path/temp.txt >>vuln.txt
-
+awk '!a[$0]++' vuln.txt > vuln1.txt 2>&1
+rm -f $path/vuln.txt && mv vuln1.txt vuln.txt >/dev/null 2>&1
 else
 echo $vuln > $path/temp.txt
 tr " " "\n" <$path/temp.txt >temp1.txt
@@ -173,7 +218,9 @@ tr " " "\n" <$path/temp.txt >temp1.txt
 #no vuln. file exists , create a new one
 echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $op 
 echo "------------------------------------------------------------------------------" >> $op
-tr " " "\n" <$path/temp.txt >>vuln.txt
+tr " " "\n" <$path/temp1.txt >>vuln.txt
+awk '!a[$0]++' vuln.txt > vuln1.txt 2>&1
+rm -f $path/vuln.txt && mv vuln1.txt vuln.txt >/dev/null 2>&1
 fi
 
 # count number of lines in file
@@ -186,11 +233,44 @@ echo "---------------------------------------"
 echo -e $yellow "Eternal Scanner saved a file with vulnerable ips to $path/vuln.txt"
 
 #Delete temp files
-rm -f temp1.txt >/dev/null 2>&1
-rm -f temp.txt >/dev/null 2>&1
+rm -rf temp1.txt >/dev/null 2>&1
+rm -rf temp.txt >/dev/null 2>&1
 rm -f masscan  >/dev/null 2>&1
 rm -f msfip  >/dev/null 2>&1
 rm -f msf.rc  >/dev/null 2>&1
-rm -f msflog.logs >/dev/null 2>&1
+rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 fi
+}
+if [ $1 == "-h" ]
+then
+echo "Eternal Scanner 1.0 - 2017"
+echo "(https://github.com/peterpt/eternal_scanner)"
+echo "----------------------------------------------------"
+echo "Available Switches :"
+echo ""
+echo "-s (Scanner speed Min: 100 Max: 10000000) Default : 500"
+echo "-h This screen"
+echo ""
+echo "Example : ./escan -s 3000 (for 3000 packets /s)"
+echo ""
+exit 1
+fi
+if [ $1 == "-s" ]
+then
+if [ -z $2 ]
+then
+echo "Invalid argument , write ./escan -h for help"
+exit 1
+else
+if [ $2 -ge 100 -a $2 -le 100000000 ]
+then
+rt="$2"
+start
+else
+echo "Invalid argument , write ./escan -h for help"
+exit 1
+fi
+fi
+fi
+
