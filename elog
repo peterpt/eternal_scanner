@@ -1,4 +1,8 @@
 #!/bin/bash
+####################################################################
+# Elog is a depedency of Eternal Scanner 1.0 Denveloped by peterpt #
+#          https://github.com/peterpt/eternal_scanner              #
+####################################################################
 #setup colors
 cyan='\e[0;36m'
 green='\033[92m'
