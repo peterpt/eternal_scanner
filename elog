@@ -1,0 +1,59 @@
+#!/bin/bash
+#setup colors
+cyan='\e[0;36m'
+green='\033[92m'
+red='\e[1;31m'
+yellow='\e[0;33m'
+orange='\e[38;5;166m'
+path=$(pwd)
+
+trap ctrl_c INT
+function ctrl_c() {
+pkill -f msfconsole* >/dev/null 2>&1
+}
+echo -e "$orange" "+---------------------------------------------------+"
+echo -e "$orange" "|$green Realtime Eternal Scan Metasploit results Checkout$orange |"
+echo -e "$orange" "+---------------------------------------------------+"
+echo -e "$orange" "|$yellow      Please wait for percentage output           $orange |"
+echo -e "$orange" "+---------------------------------------------------+"
+tm="0"
+a=""
+PID=`cat pid.tmp`
+function start(){
+mlog="$path/msflog.log"
+ps --pid $PID &>/dev/null
+pd="$?"
+if [ "$pd" -eq "1" ]
+then 
+exit 0
+else
+if [ ! -f  "$mlog" ]
+then
+tm=$((tm+1))
+if [ "$tm" == "60" ]
+then
+echo -e "$red" "Exiting"
+exit 0
+else
+sleep 1
+start
+fi
+else
+gmsft=`grep "Scanned" $mlog | tail -1`
+if [ "$gmsft" == "$a" ]
+then
+a="$gmsft"
+sleep 1
+tm="59"
+start
+else
+echo "$gmsft"
+a="$gmsft"
+tm="59"
+sleep 1
+start
+fi
+fi
+fi
+}
+start
