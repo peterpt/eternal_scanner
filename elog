@@ -28,8 +28,16 @@ mlog="$path/msflog.log"
 ps --pid $PID &>/dev/null
 pd="$?"
 if [ "$pd" -eq "1" ]
+then
+if [ -f  "$mlog" ] 
+then
+gmsft=`grep "Scanned" $mlog | tail -1`
+if [ "$gmsft" != "$a" ]
 then 
+echo "$gmsft"
 exit 0
+fi
+fi
 else
 if [ ! -f  "$mlog" ]
 then

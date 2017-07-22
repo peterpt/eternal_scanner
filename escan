@@ -155,9 +155,9 @@ echo -e "$green" "(aborting this process now will not verify all collected ips)"
 echo ""
 echo -e "\033[33;7mPlease Wait , checking $lc ips may take a while\033[0m"
 stat="2"
-msfconsole -r $path/msf.rc >/dev/null 2>&1 & echo $! > pid.tmp & chmod +x elog & ./elog
+msfconsole -r $path/msf.rc >/dev/null 2>&1 & echo $! > pid.tmp & ./elog
+sleep 2
 vuln=`cat msflog.log | grep "MS17-010" | awk '{print$2}'`
-
 #Check if msf logs got any positive result
 vuln1=`cat msflog.log | grep "MS17-010" | awk '{print$2}' | sed -n 1p`
 if [ -z "$vuln1" ]
