@@ -6,6 +6,13 @@
 # https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
 #
 rt="500"
+#setup colors
+cyan='\e[0;36m'
+green='\033[92m'
+red='\e[1;31m'
+yellow='\e[0;33m'
+orange='\e[38;5;166m'
+path=$(pwd)
 
 trap ctrl_c INT
 function ctrl_c() {
@@ -21,15 +28,126 @@ then
 pkill -f msfconsole* >/dev/null 2>&1
 fi
 }
+chkf() {
+#Check dependencies
+which msfconsole > /dev/null 2>&1
+      if [ "$?" -eq "0" ]; then
+      echo
+else
+   echo -e "$red" "Metasploit Framework Missing"
+exit 1
+fi  
+which masscan > /dev/null 2>&1
+      if [ "$?" -eq "0" ]; then
+      echo
+else
+   echo -e "$red" "Masscan Missing"
+exit 1
+fi 
 
+stat="0"       
+echo -e "$green" " ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    "     
+echo -e "$green" " ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    "   
+echo -e "$green" " ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    "   
+echo -e "$green" " ▐█▄▄▌ ▐█▌·▐█▄▄▌▐█•█▌██▐█▌▐█ ▪▐▌▐█▌▐▌  "   
+echo -e "$green" "  ▀▀▀  ▀▀▀  ▀▀▀ .▀  ▀▀▀ █▪ ▀  ▀ .▀▀▀   "   
+echo -e "$green" " .▄▄ ·  ▄▄·  ▄▄▄·  ▐ ▄  ▐ ▄ ▄▄▄ .▄▄▄   "   
+echo -e "$green" " ▐█ ▀. ▐█ ▌▪▐█ ▀█ •█▌▐█•█▌▐█▀▄.▀·▀▄ █· "   
+echo -e "$green" " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐▌▐█▐▐▌▐▀▀▪▄▐▀▀▄  "   
+echo -e "$green" " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
+echo -e "$green" "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.1"
+echo ""
+echo -e "$orange" "(-c) switch activated , checking ..."
+rm -f masscan  >/dev/null 2>&1
+rm -f msfip  >/dev/null 2>&1
+rm -f msf.rc  >/dev/null 2>&1
+rm -f msflog.log >/dev/null 2>&1
+rm -f paused.conf >/dev/null 2>&1
+rm -f temp1.txt >/dev/null 2>&1
+rm -f temp.txt >/dev/null 2>&1
+rm -f pid.tmp >/dev/null 2>&1
+ipl=`tail -n+3 $vl | sed -e "s/:445//g"`
+tmp="$path/temp.txt"
+msfi="$path/msfip"
+echo $ipl > $tmp
+tr " " "\n" <$tmp >$msfi
+rm -rf temp.txt >/dev/null 2>&1
+#metasploit execution script
+echo "spool $path/msflog.log" > msf.rc
+echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
+paste -sd, msfip            \
+|sed 's/^/set RHOSTS /; s/,/, /g'  \
+>>msf.rc
+echo "exploit" >> msf.rc
+echo "quit -y" >> msf.rc
+echo ""
+echo -e "$orange" "       Checking ips :"
+echo -e "$yellow" "----------------------------"
+echo -e "$green" ""
+cat "$msfi"
+echo ""
+echo -e "$yellow" "----------------------------"
+lc=`cat $msfi | wc -l`
+echo "Checking $lc ips"
+echo ""
+echo -e "$yellow" "Checking if the $lc ips are still vulnerable"
+echo ""
+echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop ips vulnerability check"
+echo -e "$green" "(aborting this process now will not verify all collected ips)"
+echo ""
+echo -e "\033[33;7mPlease Wait , checking $lc ips may take a while\033[0m"
+stat="2"
+msfconsole -r $path/msf.rc >/dev/null 2>&1 & echo $! > pid.tmp & ./elog
+sleep 2
+vuln=`cat msflog.log | grep "MS17-010" | awk '{print$2}'`
+#Check if msf logs got any positive result
+vuln1=`cat msflog.log | grep "MS17-010" | awk '{print$2}' | sed -n 1p`
+if [ -z "$vuln1" ]
+then
+echo ""
+echo -e "$red" "No vulnerable targets were detected from the list "
+rm -rf msflog.log >/dev/null 2>&1
+rm -rf temp1.txt >/dev/null 2>&1
+rm -rf temp.txt >/dev/null 2>&1
+rm -f masscan  >/dev/null 2>&1
+rm -f msfip  >/dev/null 2>&1
+rm -f msf.rc  >/dev/null 2>&1
+rm -f paused.conf >/dev/null 2>&1
+rm -f pid.tmp >/dev/null 2>&1
+else
+echo "$vuln" > $path/temp.txt
+rm -f msflog.log >/dev/null 2>&1
+tr " " "\n" <$path/temp.txt >temp1.txt
+of="$path/vulnch.txt"
+
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $of
+echo "------------------------------------------------------------------------------" >> $of
+tr " " "\n" <$path/temp1.txt >>$of
+awk '!a[$0]++' $of > vuln1.txt 2>&1
+rm -f $of && mv vuln1.txt vuln.txt >/dev/null 2>&1
+
+# count number of lines in file
+lm=`cat $path/temp1.txt | wc -l`
+echo ""
+echo -e $green "$lm are still vulnerable."
+echo "---------------------------------------"
+cat $path/temp1.txt
+echo "---------------------------------------"
+echo -e $yellow "Eternal Scanner saved an updated file with vulnerable ips to $path/vuln.txt"
+
+#Delete temp files
+rm -rf temp1.txt >/dev/null 2>&1
+rm -rf temp.txt >/dev/null 2>&1
+rm -f masscan  >/dev/null 2>&1
+rm -f msfip  >/dev/null 2>&1
+rm -f msf.rc  >/dev/null 2>&1
+rm -f msflog.log >/dev/null 2>&1
+rm -f paused.conf >/dev/null 2>&1
+rm -f pid.tmp >/dev/null 2>&1
+fi
+exit 0
+}
 start (){
-#setup colors
-cyan='\e[0;36m'
-green='\033[92m'
-red='\e[1;31m'
-yellow='\e[0;33m'
-orange='\e[38;5;166m'
-path=$(pwd)
 
 #Check dependencies
 which msfconsole > /dev/null 2>&1
@@ -57,7 +175,7 @@ echo -e "$green" " .▄▄ ·  ▄▄·  ▄▄▄·  ▐ ▄  ▐ ▄ ▄▄▄
 echo -e "$green" " ▐█ ▀. ▐█ ▌▪▐█ ▀█ •█▌▐█•█▌▐█▀▄.▀·▀▄ █· "   
 echo -e "$green" " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐▌▐█▐▐▌▐▀▀▪▄▐▀▀▄  "   
 echo -e "$green" " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
-echo -e "$green" "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.0"
+echo -e "$green" "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.1"
 echo ""
 echo -e "$orange" "For switches write ./escan -h"
 rm -f masscan  >/dev/null 2>&1
@@ -173,6 +291,7 @@ rm -f msf.rc  >/dev/null 2>&1
 rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
+exit 1
 else
 op="$path/vuln.txt"
 
@@ -218,6 +337,7 @@ rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
 fi
+exit 1
 }
 if [ -z $1 ]
 then
@@ -231,11 +351,23 @@ echo "----------------------------------------------------"
 echo "Available Switches :"
 echo ""
 echo "-s (Scanner speed Min: 100 Max: 10000000) Default : 500"
+echo "-c (Verify is ips in vuln.txt are still vulnerable and update it)"
 echo "-h This screen"
 echo ""
 echo "Example : ./escan -s 3000 (for 3000 packets /s)"
 echo ""
 exit 1
+fi
+if [ $1 == "-c" ]
+then
+vl="$path/vuln.txt"
+if [ ! -f "$vl" ]
+then
+echo -e "$yellow" "No Vulnerable ip list found"
+exit 1
+else
+chkf
+fi
 fi
 if [ $1 == "-s" ]
 then
@@ -254,4 +386,3 @@ exit 1
 fi
 fi
 fi
-

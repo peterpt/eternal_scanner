@@ -1,5 +1,7 @@
  ## ETERNAL SCANNER 1.0 (Changelog)
 
+* v1.1 - Some bugs fixed related to missing exit code
+* v1.1 - new switch implemented (-c) , will recheck if current ips in vuln.txt are still vulnerable
 * v1.0 - 100% display fix for metasploit large scans
 * v1.0 - Percentage displayed while metasploit is scaning ips implemented
 * v1.0 - Multiple functions added and implemented speed rate switch for masscan
