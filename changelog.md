@@ -1,4 +1,4 @@
- ## ETERNAL SCANNER 1.0 (Changelog)
+ ## ETERNAL SCANNER (Changelog)
 
 * v1.1 - Some bugs fixed related to missing exit code
 * v1.1 - new switch implemented (-c) , will recheck if current ips in vuln.txt are still vulnerable
