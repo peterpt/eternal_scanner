@@ -28,6 +28,108 @@ then
 pkill -f msfconsole* >/dev/null 2>&1
 fi
 }
+splt(){
+rm -f msfspl*.txt >/dev/null 2>&1
+#mtl=`echo "$tms" | sed -e "s/t//g"`
+echo ""
+echo -e "$orange" "More than $lc ips detected to be scanned , splitting job in $tms times"
+readarray -t LINES < msfip
+COUNT=${#LINES[@]}
+for I in "${!LINES[@]}"; do
+    INDEX=$(( (I * $tms - 1) / COUNT + 1 ))
+    echo "${LINES[I]}" >> "msfspl${INDEX}.txt"
+done
+for i in $(seq "$tms")
+do
+rm msf.rc >/dev/null 2>&1  
+echo "spool $path/msflog.log" > msf.rc
+echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
+paste -sd, msfspl$i.txt            \
+|sed 's/^/set rhosts /; s/,/, /g'  \
+>>msf.rc
+echo "exploit" >> msf.rc
+echo "quit -y" >> msf.rc
+echo ""
+lc=`cat $path/msfspl$i.txt | wc -l`
+echo -e "$green" "Checking ip list $i of $tms"
+echo -e "$yellow" "----------------------------"
+cat $path/msfspl$i.txt
+echo -e "$yellow" "----------------------------"
+echo ""
+echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop vulnerability check on file $i"
+echo -e "$green" "(aborting this process now will not verify all ips in list $i of $tms)"
+echo ""
+echo -e "\033[33;7mPlease Wait , checking $lc ips from stage $i of $tms may take a while\033[0m"
+stat="2"
+msfconsole -r $path/msf.rc >/dev/null 2>&1 & echo $! > pid.tmp & ./elog
+sleep 2
+vuln=`cat msflog.log | grep "MS17-010" | awk '{print$2}'`
+#Check if msf logs got any positive result
+vuln1=`cat msflog.log | grep "MS17-010" | awk '{print$2}' | sed -n 1p`
+if [ -z "$vuln1" ]
+then
+echo ""
+echo -e "$yellow" "No vulnerable targets were found on iplist $i of $tms"
+rm -rf msflog.log >/dev/null 2>&1
+rm -rf temp1.txt >/dev/null 2>&1
+rm -rf temp.txt >/dev/null 2>&1
+rm -f masscan  >/dev/null 2>&1
+rm -f msfip  >/dev/null 2>&1
+rm -f msf.rc  >/dev/null 2>&1
+rm -f msflog.log >/dev/null 2>&1
+rm -f paused.conf >/dev/null 2>&1
+rm -f pid.tmp >/dev/null 2>&1
+rm -f msfspl$i.txt >/dev/null 2>&1
+else
+op="$path/vuln.txt"
+
+#Check if vulnerability list file exists in ES
+if [ -f "$op" ]; then
+echo "$vuln" > $path/temp.txt
+rm -f msflog.log >/dev/null 2>&1
+tr " " "\n" <$path/temp.txt >temp1.txt
+
+#Write new detections to last line in vuln.txt
+tr " " "\n" <$path/temp.txt >>vuln.txt
+awk '!a[$0]++' vuln.txt > vuln1.txt 2>&1
+rm -f $path/vuln.txt && mv vuln1.txt vuln.txt >/dev/null 2>&1
+else
+echo $vuln > $path/temp.txt
+ rm -f msflog.log >/dev/null 2>&1
+tr " " "\n" <$path/temp.txt >temp1.txt
+
+#no vuln. file exists , create a new one
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $op 
+echo "------------------------------------------------------------------------------" >> $op
+tr " " "\n" <$path/temp1.txt >>vuln.txt
+awk '!a[$0]++' vuln.txt > vuln1.txt 2>&1
+rm -f $path/vuln.txt && mv vuln1.txt vuln.txt >/dev/null 2>&1
+fi
+
+# count number of lines in file
+lm=`cat $path/temp1.txt | wc -l`
+echo ""
+echo -e $green "$lm Vulnerable ips found"
+echo "---------------------------------------"
+cat $path/temp1.txt
+echo "---------------------------------------"
+echo -e $yellow "Eternal Scanner saved from file $i of $tms the vulnerable ips to $path/vuln.txt"
+sleep 3
+
+#Delete temp files
+rm -rf temp1.txt >/dev/null 2>&1
+rm -rf temp.txt >/dev/null 2>&1
+rm -f masscan  >/dev/null 2>&1
+rm -f msfip  >/dev/null 2>&1
+rm -f msf.rc  >/dev/null 2>&1
+rm -f msflog.log >/dev/null 2>&1
+rm -f paused.conf >/dev/null 2>&1
+rm -f pid.tmp >/dev/null 2>&1
+rm -f msfspl$i.txt >/dev/null 2>&1
+fi
+done
+exit 1
+}
 chkf() {
 #Check dependencies
 which msfconsole > /dev/null 2>&1
@@ -114,6 +216,7 @@ rm -f msfip  >/dev/null 2>&1
 rm -f msf.rc  >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
+rm -f msfspl*.txt >/dev/null 2>&1
 else
 echo "$vuln" > $path/temp.txt
 rm -f msflog.log >/dev/null 2>&1
@@ -144,6 +247,7 @@ rm -f msf.rc  >/dev/null 2>&1
 rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
+rm -f msfspl*.txt >/dev/null 2>&1
 fi
 exit 0
 }
@@ -248,14 +352,6 @@ echo -e "$yellow" "Scanner did not detect any host on this $ip with port 445 ope
 exit 1
 fi
 stat="0"
-#metasploit execution script
-echo "spool $path/msflog.log" > msf.rc
-echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
-paste -sd, msfip            \
-|sed 's/^/set rhosts /; s/,/, /g'  \
->>msf.rc
-echo "exploit" >> msf.rc
-echo "quit -y" >> msf.rc
 echo ""
 echo -e "$orange" "       Checking ips :"
 echo -e "$yellow" "----------------------------"
@@ -265,8 +361,74 @@ echo ""
 echo -e "$yellow" "----------------------------"
 lc=`cat $path/msfip | wc -l`
 echo "Collected $lc ips"
-echo ""
 echo -e "$yellow" "Checking if the $lc ips above are vulnerable"
+tm2="2"
+tm3="3"
+tm4="4"
+tm5="5"
+tm6="6"
+tm7="7"
+tm8="8"
+tm9="9"
+tm10="10"
+tm20="20"
+if [ $lc -ge "500" -a $lc -le "1999" ]
+then
+tms="$tm2"
+splt
+elif [ $lc -ge "2000" -a $lc -le "3000" ]
+then
+tms="$tm3"
+splt
+elif [ $lc -ge "3001" -a $lc -le "4000" ]
+then
+tms="$tm4"
+splt
+elif [ $lc -ge "4001" -a $lc -le "5000" ]
+then
+tms="$tm5"
+splt
+elif [ $lc -ge "5001" -a $lc -le "6000" ]
+then
+tms="$tm6"
+splt
+elif [ $lc -ge "6001" -a $lc -le "7000" ]
+then
+tms="$tm7"
+splt
+elif [ $lc -ge "7001" -a $lc -le "8000" ]
+then
+tms="$tm8"
+splt
+elif [ $lc -ge "8001" -a $lc -le "9000" ]
+then
+tms="$tm9"
+splt
+elif [ $lc -ge "9001" -a $lc -le "10000" ]
+then
+tms="$tm10"
+splt
+elif [ $lc -ge "10001" ]
+then
+echo ""
+echo -e "$yellow" "Checking more than 10001 ips with Metasploit may provide errors in script"
+echo  ""
+echo -e "$orange" "Above 10001 ips to be scanned , Eternal Scanner will split the scan in 20X"
+echo ""
+echo -e "$green" "Backing up current scanner ips to $path/10001.bk"
+cp $msfips $path/10001.bk >/dev/null 2>&1
+tms="$tm20"
+splt
+fi
+echo ""
+#metasploit execution script
+echo "spool $path/msflog.log" > msf.rc
+echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
+paste -sd, msfip            \
+|sed 's/^/set rhosts /; s/,/, /g'  \
+>>msf.rc
+echo "exploit" >> msf.rc
+echo "quit -y" >> msf.rc
 echo ""
 echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop ips vulnerability check"
 echo -e "$green" "(aborting this process now will not verify all collected ips)"
@@ -345,13 +507,13 @@ start
 fi
 if [ $1 == "-h" ]
 then
-echo "Eternal Scanner 1.0 - 2017"
+echo "Eternal Scanner 1.1 - 2017"
 echo "(https://github.com/peterpt/eternal_scanner)"
 echo "----------------------------------------------------"
 echo "Available Switches :"
 echo ""
-echo "-s (Scanner speed Min: 100 Max: 10000000) Default : 500"
-echo "-c (Verify is ips in vuln.txt are still vulnerable and update it)"
+echo "-s (Scanner speed Min: 100 Max: 10000000) Default : 500)"
+echo "-c (Verify if ips in vuln.txt are still vulnerable & update list)"
 echo "-h This screen"
 echo ""
 echo "Example : ./escan -s 3000 (for 3000 packets /s)"
