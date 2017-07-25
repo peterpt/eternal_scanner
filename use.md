@@ -18,7 +18,7 @@ Eternal Scanner allows the -s switch to accept values from 100pk/s to 100000000p
 bandwith , and "10000000" for special internet connections with network cards up to 10Gb/s .
 Using the "-s" switch with an higher value on a slow internet connection may kill your internet connection or give scanner
 unreliale outputs .
-For Normal 100Mbit inter connection users it is not advised to go further than "10000" over the -s switch .
+For Normal 100Mbit internet connection users it is not advised to go further than "10000" over the -s switch .
 
 - "./escan -c" will recheck if current vulnerable ip list in eternal_scanner is still vulnerable (In case exists).
 Latest changes in code , allows when this switch is activated as it is to not only recheck the vuln.txt file automatically
@@ -36,5 +36,6 @@ add the new detected targets to that file .
 # Switches not available or not allowed :
 
 - ./escan -s 3000 -c   - this command will not work
+- ./escan -s 3000 192.68.1.1/24  - adding an ip ahead scanner speed was NOT yet inplemented in eternal scanner
 - ./escan -c ~/ipfile.txt - Scanning an indenpendent ip list is not yet available but will be soon .
 
