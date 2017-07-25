@@ -44,7 +44,7 @@ then
 tm=$((tm+1))
 if [ "$tm" == "60" ]
 then
-echo -e "$red" "Exiting"
+echo -e "$yellow" "Metasploit Not Detected"
 exit 0
 else
 sleep 1

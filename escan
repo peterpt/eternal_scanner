@@ -23,9 +23,6 @@ exit 1
 elif [ "$stat" == "1" ]
 then
 pkill -f masscan* >/dev/null 2>&1
-elif [ "$stat" == "2" ]
-then 
-pkill -f msfconsole* >/dev/null 2>&1
 fi
 }
 splt(){
