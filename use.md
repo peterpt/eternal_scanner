@@ -2,7 +2,7 @@
 
 * Disclaimer
 - Eternal Scanner does not exploit any IP , Eternal Scanner only checks if IP or IP Range is exploitable with CVE-2017-0144
-- Scanning an IP or Range of IP that is not under your maintenance if forbidden in many countries and it goes against the law .
+- Scanning an IP or Range of IP that is not under your maintenance is forbidden in many countries and it goes against the law .
 - Eternal Scanner was build for network System administrators in order to check if any station is vulnerable to this exploit .
 
 
