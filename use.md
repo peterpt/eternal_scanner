@@ -39,3 +39,21 @@ add the new detected targets to that file .
 - ./escan -s 3000 192.68.1.1/24  - adding an ip ahead scanner speed was NOT yet inplemented in eternal scanner
 - ./escan -c ~/ipfile.txt - Scanning an indenpendent ip list is not yet available but will be soon .
 
+## Installing dependencies for Eternal Scanner
+
+- Eternal Scanner does a quick search on every start for masscan and metasploit-framework files , in case any of those 
+tools does not exist on system PATH then eternal scanner will not run .
+On debian pentest based distributions (Kali,Parrot,etc..) , installing masscan should be easy as writing apt-get install masscan
+, but by default on pentest distros , these tools are already installed by default (masscan & metasploit framework)
+On non pentest distributions and in case your debian distribution does not have in their repository these tools , then 
+these tools can be compiled from their source code o your OS just by following author instructions .
+
+For manual install of masscan github :
+https://github.com/robertdavidgraham/masscan
+
+For Metasploit-Framework github :
+https://github.com/rapid7/metasploit-framework
+
+Installing metasploit on a specific directory that is not on a system path variable  , it is advised to create a symlink on
+a system path (like : /usr/bin  , or /usr/sbin) pointing to your specific metasploit directory .
+
