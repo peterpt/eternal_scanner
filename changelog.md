@@ -1,5 +1,6 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v1.1 - Detailed IP & respective OS vulnerability file created when user uses only the -c switch to recheck current vuln. ip list , implemented
 * v1.1 - When more than 500 ips are needed to be scanned in MSF , Eternal Scanner will split the job in multiple parts
 * v1.1 - Some bugs fixed related to missing exit code
 * v1.1 - new switch implemented (-c) , will recheck if current ips in vuln.txt are still vulnerable

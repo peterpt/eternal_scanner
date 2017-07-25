@@ -204,6 +204,7 @@ sleep 2
 vuln=`cat msflog.log | grep "MS17-010" | awk '{print$2}'`
 #Check if msf logs got any positive result
 vuln1=`cat msflog.log | grep "MS17-010" | awk '{print$2}' | sed -n 1p`
+vuln2=`cat msflog.log | grep "MS17-010" | awk '{$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}'`
 if [ -z "$vuln1" ]
 then
 echo ""
@@ -218,7 +219,13 @@ rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
 rm -f msfspl*.txt >/dev/null 2>&1
 else
+rm vuln_OS.txt >/dev/null 2>&1
 echo "$vuln" > $path/temp.txt
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $path/vuln_OS.txt
+echo "------------------------------------------------------------------------------" >> $path/vuln_OS.txt
+echo "             Detailed Vulnerable IP & Operating System File                   " >> $path/vuln_OS.txt
+echo "------------------------------------------------------------------------------" >> $path/vuln_OS.txt
+echo "$vuln2" >> $path/vuln_OS.txt
 rm -f msflog.log >/dev/null 2>&1
 tr " " "\n" <$path/temp.txt >temp1.txt
 of="$path/vulnch.txt"
@@ -236,8 +243,11 @@ echo -e $green "$lm are still vulnerable."
 echo "---------------------------------------"
 cat $path/temp1.txt
 echo "---------------------------------------"
-echo -e $yellow "Eternal Scanner saved an updated file with vulnerable ips to $path/vuln.txt"
-
+echo -e "$yellow" "Eternal Scanner saved an updated file with vulnerable ips to :"
+echo -e "$green" "$path/vuln.txt"
+echo ""
+echo -e $yellow "Eternal Scanner saved a detailed IP & OS vulnerable file to :"
+echo -e "$green" "$path/vuln_OS.txt"
 #Delete temp files
 rm -rf temp1.txt >/dev/null 2>&1
 rm -rf temp.txt >/dev/null 2>&1
