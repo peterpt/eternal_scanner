@@ -60,3 +60,12 @@ a system path (like : /usr/bin  , or /usr/sbin) pointing to your specific metasp
 
 - Eternal Scanner asks to your Linux OS if msfconsole (part of metasploit-framework) exists before running .
 
+## Some Bugs that may appear using Eternal Scanner
+
+- I notice that eternal scanner output an error is metasploit have to check more than 700 ips in one single instance .
+- On next update of eternal scanner , the script will detect if the ip list is bigger than 500 ips , and if that is the case then it will divide the list and batch multiple sessions for metasploit to scan .
+Example : if an ip list to be checked have 3000 ips , then the script will divide that lit to other 6 smaller lists and will batch metasploit in multiple jobs , this means that the script will divide the 3000 ips to 6 lists with 500 ips and will check
+one by one .
+
+
+
