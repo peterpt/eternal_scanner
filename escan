@@ -550,11 +550,19 @@ vl="$path/vuln.txt"
 # check if user have writen in terminal escan -c
 if [ $1 == "-c" ]
 then
+
 #User wrote escan -c , now check if user wrote any value ahead the -c switch
 if [ -z $out ]
 then
 
-# User input was escan -c , but no value was written ahead , so set vuln.txt as a default file to be checked 
+# User input was escan -c , but no value was written ahead , so set vuln.txt as a default file to be checked
+if [ ! -f $vl ]
+then
+echo ""
+echo -e "$red" "Vulnerable file does not exist yet."
+exit 1
+fi
+
 msfi="$path/msfip"
 tempf=`tail -n+3 $vl | sed -e "s/:445//g"`
 echo $tempf > $path/vuln1.txt
@@ -613,7 +621,7 @@ if [ ! -f $vl ]
 then
 echo ""
 echo -e "$red" "Vulnerable file does not exist yet."
-exit 0
+exit 1
 else
 msfi="$path/msfip"
 tempf=`tail -n+3 $vl | sed -e "s/:445//g"`
