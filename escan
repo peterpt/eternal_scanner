@@ -534,7 +534,7 @@ echo "Available Switches :"
 echo ""
 echo "-s (Scanner speed Min: 100 Max: 10000000) Default : 500)"
 echo "-c (Verify if ips in vuln.txt are still vulnerable & update list)"
-echo "-c /someiplistfile.txt (Will check current user manual ip list)
+echo "-c /someiplistfile.txt (Will check current user manual ip list)"
 echo "-h This screen"
 echo ""
 echo "Example : ./escan -s 3000 (for 3000 packets /s)"
