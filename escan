@@ -5,7 +5,10 @@
 # Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
 # https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
 #
+
+# Set default Scanner Speed
 rt="500"
+
 #setup colors
 cyan='\e[0;36m'
 green='\033[92m'
@@ -14,6 +17,7 @@ yellow='\e[0;33m'
 orange='\e[38;5;166m'
 path=$(pwd)
 
+# CTRL+C Interrupt for scanner
 trap ctrl_c INT
 function ctrl_c() {
 if [ "$stat" == "0" ]
@@ -25,48 +29,58 @@ then
 pkill -f masscan* >/dev/null 2>&1
 fi
 }
+
+#Function activated when ip list is bigger than 500 ips to scan
+
 splt(){
-rm -f msfspl*.txt >/dev/null 2>&1
-#mtl=`echo "$tms" | sed -e "s/t//g"`
 echo ""
-echo -e "$orange" "More than $lc ips detected to be scanned , splitting job in $tms times"
-readarray -t LINES < msfip
-COUNT=${#LINES[@]}
-for I in "${!LINES[@]}"; do
-    INDEX=$(( (I * $tms - 1) / COUNT + 1 ))
-    echo "${LINES[I]}" >> "msfspl${INDEX}.txt"
-done
+echo -e "$orange" "More than $lc ips detected to be scanned"
+echo -e "$green" "Splitting MSF Scanning in $tms tasks to avoid errors"
 for i in $(seq "$tms")
 do
 rm msf.rc >/dev/null 2>&1  
 echo "spool $path/msflog.log" > msf.rc
 echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
-paste -sd, msfspl$i.txt            \
+paste -sd, x$i            \
 |sed 's/^/set rhosts /; s/,/, /g'  \
 >>msf.rc
 echo "exploit" >> msf.rc
 echo "quit -y" >> msf.rc
 echo ""
-lc=`cat $path/msfspl$i.txt | wc -l`
+
+#count number of lines in 1st splitted ip list
+
+lc=`cat $path/x$i | wc -l`
 echo -e "$green" "Checking ip list $i of $tms"
 echo -e "$yellow" "----------------------------"
-cat $path/msfspl$i.txt
+cat $path/x$i
 echo -e "$yellow" "----------------------------"
 echo ""
-echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop vulnerability check on file $i"
-echo -e "$green" "(aborting this process now will not verify all ips in list $i of $tms)"
+echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop vulnerability check on task $i"
+echo -e "$green" "(aborting this process now will not verify all ips in task $i of $tms)"
 echo ""
-echo -e "\033[33;7mPlease Wait , checking $lc ips from stage $i of $tms may take a while\033[0m"
+echo -e "\033[33;7mPlease Wait , checking $lc ips from task $i of $tms may take a while\033[0m"
 stat="2"
+
+# Execute msfconsole script , get PID from msfconsole and start elog
+
 msfconsole -r $path/msf.rc >/dev/null 2>&1 & echo $! > pid.tmp & ./elog
 sleep 2
+
+# At this point metasploit already finished all ips scan
+
+# vuln variable used to grab all positive results for displaying and write in vuln.txt file
 vuln=`cat msflog.log | grep "MS17-010" | awk '{print$2}'`
-#Check if msf logs got any positive result
+
+#vuln1 variable used only to check if any positive results were found
+
 vuln1=`cat msflog.log | grep "MS17-010" | awk '{print$2}' | sed -n 1p`
 if [ -z "$vuln1" ]
 then
 echo ""
-echo -e "$yellow" "No vulnerable targets were found on iplist $i of $tms"
+echo -e "$yellow" "No vulnerable targets were found on task $i of $tms"
+
+# Remove all temp files
 rm -rf msflog.log >/dev/null 2>&1
 rm -rf temp1.txt >/dev/null 2>&1
 rm -rf temp.txt >/dev/null 2>&1
@@ -76,19 +90,33 @@ rm -f msf.rc  >/dev/null 2>&1
 rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
-rm -f msfspl$i.txt >/dev/null 2>&1
+rm -f x$i >/dev/null 2>&1
 else
+
+# Positive results found , define op variable as output file to be written
 op="$path/vuln.txt"
 
-#Check if vulnerability list file exists in ES
+#Check if vulnerability list file exists 
+
 if [ -f "$op" ]; then
+
+# vuln.txt exists , copy all msflog positive results to a temporary file
+
 echo "$vuln" > $path/temp.txt
 rm -f msflog.log >/dev/null 2>&1
+
+# Open the temporary file and filter all ips to one on each line
 tr " " "\n" <$path/temp.txt >temp1.txt
 
 #Write new detections to last line in vuln.txt
+
 tr " " "\n" <$path/temp.txt >>vuln.txt
+
+# Remove duplicates
+ 
 awk '!a[$0]++' vuln.txt > vuln1.txt 2>&1
+
+# Remove old vuln.txt file and write the new one with ordered ips
 rm -f $path/vuln.txt && mv vuln1.txt vuln.txt >/dev/null 2>&1
 else
 echo $vuln > $path/temp.txt
@@ -108,9 +136,10 @@ lm=`cat $path/temp1.txt | wc -l`
 echo ""
 echo -e $green "$lm Vulnerable ips found"
 echo "---------------------------------------"
+# Display the positive results
 cat $path/temp1.txt
 echo "---------------------------------------"
-echo -e $yellow "Eternal Scanner saved from file $i of $tms the vulnerable ips to $path/vuln.txt"
+echo -e $yellow "Eternal Scanner saved from task $i of $tms the vulnerable ips to $path/vuln.txt"
 sleep 3
 
 #Delete temp files
@@ -122,7 +151,7 @@ rm -f msf.rc  >/dev/null 2>&1
 rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
-rm -f msfspl$i.txt >/dev/null 2>&1
+rm -f x$i >/dev/null 2>&1
 fi
 done
 exit 1
@@ -144,7 +173,9 @@ else
 exit 1
 fi 
 
-stat="0"       
+stat="0"  
+
+# Logo     
 echo -e "$green" " ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    "     
 echo -e "$green" " ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    "   
 echo -e "$green" " ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    "   
@@ -156,40 +187,45 @@ echo -e "$green" " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐�
 echo -e "$green" " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
 echo -e "$green" "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.1"
 echo ""
-echo -e "$orange" "(-c) switch activated , checking ..."
+echo -e "$orange" "(-c) $vl (switch activated , checking ...)"
+
+# Remove temp files
 rm -f masscan  >/dev/null 2>&1
-rm -f msfip  >/dev/null 2>&1
 rm -f msf.rc  >/dev/null 2>&1
 rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f temp1.txt >/dev/null 2>&1
 rm -f temp.txt >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
-ipl=`tail -n+3 $vl | sed -e "s/:445//g"`
-tmp="$path/temp.txt"
-msfi="$path/msfip"
-echo $ipl > $tmp
-tr " " "\n" <$tmp >$msfi
-rm -rf temp.txt >/dev/null 2>&1
-#metasploit execution script
+rm -f x* >/dev/null 2>&1
+sleep 2
+
+# Tell metasploit to create a log file
 echo "spool $path/msflog.log" > msf.rc
+
+# Tell metasploit to use eternal blue scanner
 echo "use auxiliary/scanner/smb/smb_ms17_010" >> msf.rc
+
+# Paste all ips from msfip file to msf.rc execution script
 paste -sd, msfip            \
 |sed 's/^/set RHOSTS /; s/,/, /g'  \
 >>msf.rc
 echo "exploit" >> msf.rc
+
+# Automatically exits metasploit when done
 echo "quit -y" >> msf.rc
+
 echo ""
 echo -e "$orange" "       Checking ips :"
 echo -e "$yellow" "----------------------------"
 echo -e "$green" ""
-cat "$msfi"
+cat msfip
 echo ""
 echo -e "$yellow" "----------------------------"
-lc=`cat $msfi | wc -l`
+lc=`cat msfip | wc -l`
 echo "Checking $lc ips"
 echo ""
-echo -e "$yellow" "Checking if the $lc ips are still vulnerable"
+echo -e "$yellow" "Checking if the $lc ips are vulnerable"
 echo ""
 echo -e "$green" "Press CTRL-C (1X ONLY) if you want to stop ips vulnerability check"
 echo -e "$green" "(aborting this process now will not verify all collected ips)"
@@ -214,24 +250,34 @@ rm -f msfip  >/dev/null 2>&1
 rm -f msf.rc  >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
-rm -f msfspl*.txt >/dev/null 2>&1
+rm -f x* >/dev/null 2>&1
 else
-rm vuln_OS.txt >/dev/null 2>&1
+vos="$path/vuln_OS.txt"
+vtmp="$path/vuln_OS_tmp.txt"
+if [ ! -f $vos ]
+then
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $vtmp
+echo "------------------------------------------------------------------------------" >> $vtmp
+echo "             Detailed Vulnerable IP & Operating System File                   " >> $vtmp
+echo "+----------------------------------------------------------------------------+" >> $vtmp
+echo "$vuln2" >> "$vtmp"
+awk '!a[$0]++' $path/vuln_OS_tmp.txt > vuln_OS.txt 2>&1
+rm -f $path/vuln_OS_tmp.txt >/dev/null 2>&1
+else
+echo "$vuln2" > "$vtmp"
+awk '!a[$0]++' $path/vuln_OS_tmp.txt >> vuln_OS.txt 2>&1
+rm -f $path/vuln_OS_tmp.txt >/dev/null 2>&1
+fi
 echo "$vuln" > $path/temp.txt
-echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $path/vuln_OS.txt
-echo "------------------------------------------------------------------------------" >> $path/vuln_OS.txt
-echo "             Detailed Vulnerable IP & Operating System File                   " >> $path/vuln_OS.txt
-echo "------------------------------------------------------------------------------" >> $path/vuln_OS.txt
-echo "$vuln2" >> $path/vuln_OS.txt
 rm -f msflog.log >/dev/null 2>&1
 tr " " "\n" <$path/temp.txt >temp1.txt
 of="$path/vulnch.txt"
 
 echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $of
 echo "------------------------------------------------------------------------------" >> $of
-tr " " "\n" <$path/temp1.txt >>$of
-awk '!a[$0]++' $of > vuln1.txt 2>&1
-rm -f $of && mv vuln1.txt vuln.txt >/dev/null 2>&1
+tr " " "\n" <$path/temp1.txt >>$path/vulnch.txt
+awk '!a[$0]++' $path/vulnch.txt > vuln1.txt 2>&1
+rm -f $path/vulnch.txt && mv vuln1.txt vuln.txt >/dev/null 2>&1
 
 # count number of lines in file
 lm=`cat $path/temp1.txt | wc -l`
@@ -254,7 +300,7 @@ rm -f msf.rc  >/dev/null 2>&1
 rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
-rm -f msfspl*.txt >/dev/null 2>&1
+rm -f x* >/dev/null 2>&1
 fi
 exit 0
 }
@@ -297,6 +343,7 @@ rm -f paused.conf >/dev/null 2>&1
 rm -f temp1.txt >/dev/null 2>&1
 rm -f temp.txt >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
+rm -f x* >/dev/null 2>&1
 mass="$path/masscan"
 echo ""
 echo -e "$orange" "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24"
@@ -369,62 +416,23 @@ echo -e "$yellow" "----------------------------"
 lc=`cat $path/msfip | wc -l`
 echo "Collected $lc ips"
 echo -e "$yellow" "Checking if the $lc ips above are vulnerable"
-tm2="2"
-tm3="3"
-tm4="4"
-tm5="5"
-tm6="6"
-tm7="7"
-tm8="8"
-tm9="9"
-tm10="10"
-tm20="20"
-if [ $lc -ge "500" -a $lc -le "1999" ]
+
+# If scanner ip list is bigger than 500 ips , then split the msfip list in multiple files with 500 ips each one
+if [ "$lc" -gt "500" ]
 then
-tms="$tm2"
-splt
-elif [ $lc -ge "2000" -a $lc -le "3000" ]
+split -d -l 500 msfip
+tms=`ls -l x* | wc -l`
+for i in $(seq 0 "$tms")
+do
+tm=$((i+1))
+if [ "$tm" == "11" ]
 then
-tms="$tm3"
-splt
-elif [ $lc -ge "3001" -a $lc -le "4000" ]
-then
-tms="$tm4"
-splt
-elif [ $lc -ge "4001" -a $lc -le "5000" ]
-then
-tms="$tm5"
-splt
-elif [ $lc -ge "5001" -a $lc -le "6000" ]
-then
-tms="$tm6"
-splt
-elif [ $lc -ge "6001" -a $lc -le "7000" ]
-then
-tms="$tm7"
-splt
-elif [ $lc -ge "7001" -a $lc -le "8000" ]
-then
-tms="$tm8"
-splt
-elif [ $lc -ge "8001" -a $lc -le "9000" ]
-then
-tms="$tm9"
-splt
-elif [ $lc -ge "9001" -a $lc -le "10000" ]
-then
-tms="$tm10"
-splt
-elif [ $lc -ge "10001" ]
-then
-echo ""
-echo -e "$yellow" "Checking more than 10001 ips with Metasploit may provide errors in script"
-echo  ""
-echo -e "$orange" "Above 10001 ips to be scanned , Eternal Scanner will split the scan in 20X"
-echo ""
-echo -e "$green" "Backing up current scanner ips to $path/10001.bk"
-cp $msfips $path/10001.bk >/dev/null 2>&1
-tms="$tm20"
+mv x$i x$tm >/dev/null 2>&1
+else
+mv x0$i x$tm >/dev/null 2>&1
+fi
+done
+tms=`ls -l x* | wc -l`
 splt
 fi
 echo ""
@@ -460,6 +468,7 @@ rm -f msf.rc  >/dev/null 2>&1
 rm -f msflog.log >/dev/null 2>&1
 rm -f paused.conf >/dev/null 2>&1
 rm -f pid.tmp >/dev/null 2>&1
+rm -f x* >/dev/null 2>&1
 exit 1
 else
 op="$path/vuln.txt"
@@ -508,10 +517,14 @@ rm -f pid.tmp >/dev/null 2>&1
 fi
 exit 1
 }
+
+# escan only written in terminal
 if [ -z $1 ]
 then
 start
 fi
+
+# esvan -h writen in terminal
 if [ $1 == "-h" ]
 then
 echo "Eternal Scanner 1.1 - 2017"
@@ -521,21 +534,96 @@ echo "Available Switches :"
 echo ""
 echo "-s (Scanner speed Min: 100 Max: 10000000) Default : 500)"
 echo "-c (Verify if ips in vuln.txt are still vulnerable & update list)"
+echo "-c /someiplistfile.txt (Will check current user manual ip list)
 echo "-h This screen"
 echo ""
 echo "Example : ./escan -s 3000 (for 3000 packets /s)"
 echo ""
 exit 1
 fi
+
+out=$2
+
+#Define default vulnerable eternal scanner ip list
+vl="$path/vuln.txt"
+
+# check if user have writen in terminal escan -c
 if [ $1 == "-c" ]
 then
-vl="$path/vuln.txt"
-if [ ! -f "$vl" ]
+#User wrote escan -c , now check if user wrote any value ahead the -c switch
+if [ -z $out ]
 then
-echo -e "$yellow" "No Vulnerable ip list found"
-exit 1
-else
+
+# User input was escan -c , but no value was written ahead , so set vuln.txt as a default file to be checked 
+msfi="$path/msfip"
+tempf=`tail -n+3 $vl | sed -e "s/:445//g"`
+echo $tempf > $path/vuln1.txt
+tr " " "\n" <$path/vuln1.txt >$msfi
+rm -f $path/vuln1.txt >/dev/null 2>&1
+vl="$path/vuln.txt"
 chkf
+else
+
+# User wrote on terminal escan -c (iplist file) , check if the path of user ip list exists
+if [ -f $out ]
+then
+
+# User ip lists exists , copy that list to eternal scanner path as filename msfip
+cp "$out" "$path/msfip"
+
+# Check if msfip ip list have more than 500 ips , and split that file in multiple files if necessary
+msfi=`cat msfip | wc -l`
+if [ "$msfi" -gt "500" ]
+then
+split -d -l 500 msfip
+tms=`ls -l x0* | wc -l`
+for i in $(seq 0 "$tms")
+do
+tm=$((i+1))
+if [ "$tm" == "11" ]
+then
+mv x0$i x$tm >/dev/null 2>&1
+else
+mv x0$i x$tm >/dev/null 2>&1
+fi
+done
+tms=`ls -l x* | wc -l`
+echo -e "$green" " ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    "     
+echo -e "$green" " ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    "   
+echo -e "$green" " ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    "   
+echo -e "$green" " ▐█▄▄▌ ▐█▌·▐█▄▄▌▐█•█▌██▐█▌▐█ ▪▐▌▐█▌▐▌  "   
+echo -e "$green" "  ▀▀▀  ▀▀▀  ▀▀▀ .▀  ▀▀▀ █▪ ▀  ▀ .▀▀▀   "   
+echo -e "$green" " .▄▄ ·  ▄▄·  ▄▄▄·  ▐ ▄  ▐ ▄ ▄▄▄ .▄▄▄   "   
+echo -e "$green" " ▐█ ▀. ▐█ ▌▪▐█ ▀█ •█▌▐█•█▌▐█▀▄.▀·▀▄ █· "   
+echo -e "$green" " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐▌▐█▐▐▌▐▀▀▪▄▐▀▀▄  "   
+echo -e "$green" " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
+echo -e "$green" "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 1.1"
+echo ""
+echo -e "$orange" "(-c) (switch activated , checking User Ip List ...)"
+splt
+else
+vl="$path/msfip"
+chkf
+fi
+else
+echo -e "$yellow" "Path for $2 is not correct ."
+echo ""
+echo -e "$green" "Using default file in case exists ."
+if [ ! -f $vl ]
+then
+echo ""
+echo -e "$red" "Vulnerable file does not exist yet."
+exit 0
+else
+msfi="$path/msfip"
+tempf=`tail -n+3 $vl | sed -e "s/:445//g"`
+echo $tempf > $path/vuln1.txt
+tr " " "\n" <$path/vuln1.txt >$msfi
+rm -f $path/vuln1.txt >/dev/null 2>&1
+vl="$path/vuln.txt"
+chkf
+fi
+fi
 fi
 fi
 if [ $1 == "-s" ]

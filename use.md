@@ -27,6 +27,12 @@ created by eternal_scanner on 1st running (in case positive results are achieved
 called "vuln_OS.txt" that contains not only the vulnerable ips from (vuln.txt) but also their respective Operating System .
 vuln_OS.txt is only created when this switch is activated and in not any other circunstance or switch .
 
+- "./escan -c /root/someiplist.txt" , will check manual ip list that user provide to escan , and will add the vulnerable ip
+list to vuln.txt file in the end .
+In case user iplist path is wrong then escan will set the default "vuln.txt" file , in case exists .
+
+* Note : User manual ip list example should be strucutred with one ip per line
+
 - "./escan" normal launching method for eternal_scanner
 On a normal launching method , eternal scanner will autosetup the scanner speed to "500pk/s" (packets per second) .
 Eternal Scanner will scan user ip or ip range input for vulnerable hosts and will create a vulnerable file (vuln.txt)in 
@@ -38,7 +44,7 @@ add the new detected hosts to that file .
 
 - ./escan -s 3000 -c   - this command will not work
 - ./escan -s 3000 192.68.1.1/24  - adding an ip ahead scanner speed was NOT inplemented yet in Eternal Scanner
-- ./escan -c ~/ipfile.txt - Scanning an indenpendent ip list is not yet available but will be soon .
+
 
 ## Installing dependencies for Eternal Scanner
 
