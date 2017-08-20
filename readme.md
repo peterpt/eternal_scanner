@@ -23,6 +23,8 @@ Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 .
 * (Using the -c switch eternal scanner will create a detailed file from vulnerable ips)
 * <img src="https://s21.postimg.org/4xrv3vbyv/image.png" width="25%"></img>
 
+# Video
+* Eternal Scanner 2.0 : https://www.youtube.com/watch?v=8heVXfcywq0
 # Requirements
 - masscan
 - metasploit-framework
