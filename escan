@@ -526,7 +526,7 @@ done
 tms=`ls -l $defdir/x* | wc -l`
 splt
 fi
-if "$lc" -gt "20" ]
+if [ "$lc" -gt "20" ]
 then
 thr="5"
 else
