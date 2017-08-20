@@ -1,5 +1,9 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v2.0 - some bugs fixed
+* v2.0 - Default ip data directory changed to /usr/local/share/eternal_scanner
+* v2.0 - Autoself instalation executables on /usr/local/sbin
+* v2.0 - -i (for ip) switch implemented
 * v1.1 - Some bugs fixed and manual ip list option added to be scanned
 * v1.1 - Detailed IP & respective OS vulnerability file created when user uses only the -c switch to recheck current vuln. ip list , implemented
 * v1.1 - When more than 500 ips are needed to be scanned in MSF , Eternal Scanner will split the job in multiple parts

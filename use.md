@@ -12,8 +12,8 @@
 * Switches
 
 -Running in current eternal_scanner directory over terminal :
-- "./escan -h"  will popup the available switches
-- "./escan -s 1000" will setup the scanner rate speed to 1000pk/s 
+- "escan -h"  will popup the available switches
+- "escan -s 1000" will setup the scanner rate speed to 1000pk/s 
 - Rate speed :
 Eternal Scanner allows the -s switch to accept values from 100pk/s to 100000000pk/s where "100" should be used for low internet
 bandwith , and "10000000" for special internet connections with network cards up to 10Gb/s .
@@ -21,17 +21,23 @@ Using the "-s" switch with an higher value on a slow internet connection may kil
 unreliable outputs .
 For Normal 100Mbit internet connection users it is not advised to go further than "10000" over the -s switch .
 
-- "./escan -c" will recheck if current vulnerable ip list in eternal_scanner is still vulnerable (In case exists).
+- "escan -c" will recheck if current vulnerable ip list in eternal_scanner is still vulnerable (In case exists).
 Latest changes in code , allows when this switch is activated , as it is , to not only recheck the vuln.txt file automatically
 created by eternal_scanner on 1st running (in case positive results are achieved) , but also create another detailed file
 called "vuln_OS.txt" that contains not only the vulnerable ips from (vuln.txt) but also their respective Operating System .
 vuln_OS.txt is only created when this switch is activated and in not any other circunstance or switch .
 
-- "./escan -c /root/someiplist.txt" , will check manual ip list that user provide to escan , and will add the vulnerable ip
+- "escan -c /root/someiplist.txt" , will check manual ip list that user provide to escan , and will add the vulnerable ip
 list to vuln.txt file in the end .
 In case user iplist path is wrong then escan will set the default "vuln.txt" file , in case exists .
 
 * Note : User manual ip list example should be strucutred with one ip per line
+
+- "escan -i 192.168.1.1/24" , using this command directly from terminal will avoid eternal scanner
+prompt for ip value , and will proceed automatically to ip/ip range scan .
+
+- "escan -i 192.168.1.1/24 -s 3000" , same as (escan -i switch before) , but with scan speed at 3000 packets/s .
+
 
 - "./escan" normal launching method for eternal_scanner
 On a normal launching method , eternal scanner will autosetup the scanner speed to "500pk/s" (packets per second) .
@@ -43,7 +49,6 @@ add the new detected hosts to that file .
 # Switches not available or not allowed :
 
 - ./escan -s 3000 -c   - this command will not work
-- ./escan -s 3000 192.68.1.1/24  - adding an ip ahead scanner speed was NOT inplemented yet in Eternal Scanner
 
 
 ## Installing dependencies for Eternal Scanner
@@ -68,10 +73,8 @@ a system path (like : /usr/bin  , or /usr/sbin) pointing to your specific metasp
 
 ## Some Bugs that may appear using Eternal Scanner
 
-- I notice that eternal scanner output an error is metasploit have to check more than 700 ips in one single instance .
-- On next update of eternal scanner , the script will detect if the ip list is bigger than 500 ips , and if that is the case then it will divide the list and batch multiple sessions for metasploit to scan .
-Example : if an ip list to be checked have 3000 ips , then the script will divide that lit to other 6 smaller lists and will batch metasploit in multiple jobs , this means that the script will divide the 3000 ips to 6 lists with 500 ips and will check
-one by one .
+"cat: msflog not found" - for this error to appear it means that your metasploit instalation is not working correctly .
+Make sure you can run metasploit everywhere in your linux . To check this just write msfconsole outside metasploit directory .
 
 
 

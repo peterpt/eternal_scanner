@@ -10,10 +10,10 @@ red='\e[1;31m'
 yellow='\e[0;33m'
 orange='\e[38;5;166m'
 path=$(pwd)
-
+defdir="/usr/local/share/Eternal_Scanner"
 trap ctrl_c INT
 function ctrl_c() {
-pkill -f msfconsole* >/dev/null 2>&1
+kill $PID >/dev/null 2>&1
 }
 echo -e "$orange" "+---------------------------------------------------+"
 echo -e "$orange" "|$green Realtime Eternal Scan Metasploit results Checkout$orange |"
@@ -22,9 +22,9 @@ echo -e "$orange" "|$yellow      Please wait for percentage output           $or
 echo -e "$orange" "+---------------------------------------------------+"
 tm="0"
 a=""
-PID=`cat pid.tmp`
+PID=`cat $defdir/pid.tmp`
 function start(){
-mlog="$path/msflog.log"
+mlog="$defdir/msflog.log"
 ps --pid $PID &>/dev/null
 pd="$?"
 if [ "$pd" -eq "1" ]
