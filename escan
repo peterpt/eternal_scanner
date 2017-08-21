@@ -234,8 +234,6 @@ logo
 echo ""
 echo -e "$orange" "(-c) $vl (switch activated , checking ...)"
 
-# Remove temp files
-delf
 sleep 2
 
 # Tell metasploit to create a log file
@@ -819,7 +817,7 @@ echo ""
 exit 1
 fi
 
-out=$2
+out="$2"
 
 #Define default vulnerable eternal scanner ip list
 vl="$defdir/vuln.txt"
@@ -838,7 +836,8 @@ then
 echo ""
 echo -e "$red" "Vulnerable file does not exist yet."
 exit 1
-fi
+else
+delf
 cp "$defdir/vuln.txt" "$defdir/vuln.bak" >/dev/null 2>&1
 cp "$defdir/vuln_OS.txt" "$defdir/vuln_OS.bak" >/dev/null 2>&1
 cp "$defdir/vuln_DP.txt" "$defdir/vuln_DP.bak" >/dev/null 2>&1
@@ -851,6 +850,7 @@ tr " " "\n" <$defdir/vuln1.txt >$msfi
 rm -f "$defdir/vuln1.txt" >/dev/null 2>&1
 vl="$defdir/vuln.txt"
 chkf
+fi
 else
 
 # User wrote on terminal escan -c (iplist file) , check if the path of user ip list exists
@@ -895,6 +895,7 @@ echo ""
 echo -e "$red" "Vulnerable file does not exist yet."
 exit 1
 else
+delf
 cp "$defdir/vuln.txt" "$defdir/vuln.bak" >/dev/null 2>&1
 cp "$defdir/vuln_OS.txt" "$defdir/vuln_OS.bak" >/dev/null 2>&1
 cp "$defdir/vuln_DP.txt" "$defdir/vuln_DP.bak" >/dev/null 2>&1
