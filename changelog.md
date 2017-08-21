@@ -1,5 +1,6 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v2.0 - Code improvements and new switch implemented (-v)
 * v2.0 - some bugs fixed
 * v2.0 - Default ip data directory changed to /usr/local/share/eternal_scanner
 * v2.0 - Autoself instalation executables on /usr/local/sbin

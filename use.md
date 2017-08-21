@@ -38,6 +38,7 @@ prompt for ip value , and will proceed automatically to ip/ip range scan .
 
 - "escan -i 192.168.1.1/24 -s 3000" , same as (escan -i switch before) , but with scan speed at 3000 packets/s .
 
+- "escan -v" , will display current vulnerable ip list (vuln.txt) on screen (in case exists)
 
 - "./escan" normal launching method for eternal_scanner
 On a normal launching method , eternal scanner will autosetup the scanner speed to "500pk/s" (packets per second) .
