@@ -647,7 +647,7 @@ echo -e "$green" " ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐�
 echo -e "$green" " ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ "   
 echo -e "$green" "  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀$yellow 2.0"
 echo ""
-echo -e "$orange" "For switches write ./escan -h in your terminal"
+echo -e "$orange" "For switches write (escan -h) in your terminal"
 echo -e "$yellow" "Scanning $ip with port $port opened and at $rt pkt/s"
 rm -f $defdir/masscan  >/dev/null 2>&1
 rm -f $defdir/msfip  >/dev/null 2>&1
@@ -746,6 +746,12 @@ tms=`ls -l $defdir/x* | wc -l`
 splt
 fi
 echo ""
+if [ "$lc" -gt "20" ]
+then
+thr="5"
+else
+thr="1"
+fi
 #metasploit execution script
 echo "spool $defdir/msflog.log" > $defdir/msf.rc
 echo "use auxiliary/scanner/smb/smb_ms17_010" >> $defdir/msf.rc
@@ -753,6 +759,7 @@ paste -sd, $defdir/msfip            \
 |sed 's/^/set rhosts /; s/,/, /g'  \
 >>$defdir/msf.rc
 echo "set rport $port" >> $defdir/msf.rc
+echo "set threads $thr" >> $defdir/msf.rc
 echo "exploit" >> $defdir/msf.rc
 echo "quit -y" >> $defdir/msf.rc
 echo ""
