@@ -136,7 +136,7 @@ stat="2"
 
 # Execute msfconsole script , get PID from msfconsole and start elog
 
-msfconsole -r $defdir/msf.rc >/dev/null 2>&1 & echo $! > $defdir/pid.tmp & ./elog
+msfconsole -r $defdir/msf.rc >/dev/null 2>&1 & echo $! > $defdir/pid.tmp & elog
 sleep 2
 
 # At this point metasploit already finished all ips scan
@@ -771,7 +771,7 @@ then
 rt="$4"
 ips
 else
-echo "Invalid argument , write ./escan -h for help"
+echo "Invalid argument , write escan -h for help"
 exit 1
 fi
 fi
