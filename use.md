@@ -40,6 +40,10 @@ prompt for ip value , and will proceed automatically to ip/ip range scan .
 
 - "escan -v" , will display current vulnerable ip list (vuln.txt) on screen (in case exists)
 
+- "escan -vo" , will display current Operating System vulnerable ip list (vuln_OS.txt) on screen (in case exists).
+To this file be created , user must first have the basic vuln.txt file already and then applying the command (escan -c) , vuln_OS.txt will be created .
+
+
 - "./escan" normal launching method for eternal_scanner
 On a normal launching method , eternal scanner will autosetup the scanner speed to "500pk/s" (packets per second) .
 Eternal Scanner will scan user ip or ip range input for vulnerable hosts and will create a vulnerable file (vuln.txt)in 
