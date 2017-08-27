@@ -54,7 +54,7 @@ echo ""
 cp escan /usr/local/sbin/ >/dev/null 2>&1
 cp elog /usr/local/sbin/ >/dev/null 2>&1
 echo ""
-echo -e "$green" "Eternal Scanner was intalled in your system"
+echo -e "$green" "Eternal Scanner was installed in your system"
 echo ""
 echo -e "$orange" "From now on , write (escan) or (escan -h) anywhere to run it."
 echo ""
@@ -64,7 +64,7 @@ else
 cp escan /usr/local/sbin/ >/dev/null 2>&1
 cp elog /usr/local/sbin/ >/dev/null 2>&1
 echo ""
-echo -e "$green" "Eternal Scanner was intalled in your system"
+echo -e "$green" "Eternal Scanner was installed in your system"
 echo ""
 echo -e "$orange" "From now on , write (escan) or (escan -h) anywhere to run it."
 echo ""
@@ -797,7 +797,31 @@ exit 1
 fi
 fi
 
-# esvan -h writen in terminal
+if [ "$1" == "-vo" ]
+then
+if [ -f "$defdir/vuln_OS.txt" ]
+then
+echo -e "$orange" "Displaying Detailed OS Vulnerability IP file"
+echo -e "$yellow" "Currently stored in $defdir"
+echo -e "$cyan" "+---------------------------------------------------------------------------+"
+echo -e "$green" ""
+cat "$defdir/vuln_OS.txt"
+echo -e "$cyan" "+---------------------------------------------------------------------------+"
+exit 1
+else
+if [ -f "$defdir/vuln.txt" ]
+then
+echo -e "$green" "To display this file you must first write (escan -c) on terminal so your"
+echo -e "$green" "vulnerable ip list can be checked , and then you can use (escan -vo)"
+exit 1
+else
+echo -e "$green" "It was not found a vulnerable ip list , write (escan)"
+echo -e "$green" "on your terminal to find vulnerable hosts .)"
+exit 1
+fi
+fi
+fi
+# escan -h writen in terminal
 if [ "$1" == "-h" ]
 then
 echo "Eternal Scanner 2.0 - 2017"
@@ -810,6 +834,7 @@ echo "escan -s (Scanner speed Min: 100 Max: 10000000 /Default : 500"
 echo "escan -c (Verify if ips in vuln.txt are still vulnerable & update list)"
 echo "escan -c /someiplistfile.txt (Will check current user manual ip list)"
 echo "escan -v (Display current vulnerable ip list on screen)"
+echo "escan -vo (Display current vulnerable detailed OS ip list on screen)"
 echo "escan -h This screen"
 echo ""
 echo "Example : escan -i 192.68.1.1/24 -s 3000 (for 3000 packets /s)"
