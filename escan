@@ -821,6 +821,35 @@ exit 1
 fi
 fi
 fi
+if [ "$1" == "-u" ]
+then
+# Check if eternal scanner is installed on a system path
+es=$(whereis escan |awk '{print$2}')
+el=$(whereis elog |awk '{print$2}')
+if [ -z $es ]
+then
+git pull origin master
+echo -e "$green" "Your Eternal Scanner was updated from Git"
+exit 1
+else
+echo -e "$yellow" "Found escan in : $es"
+echo -e "$yellow" "Found elog in : $el"
+rm -f $es >/dev/null 2>&1
+rm -f $el >/dev/null 2>&1
+which wget > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+apt-get install wget -y > /dev/null 2>&1
+fi
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/escan -O $es > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/elog -O $el > /dev/null 2>&1
+chmod +x $es >/dev/null 2>&1
+chmod +x $el >/dev/null 2>&1
+echo ""
+echo -e "$green" "Eternal Scanner Binaries where updated to your system"
+echo ""
+exit 1
+fi
+fi
 # escan -h writen in terminal
 if [ "$1" == "-h" ]
 then
@@ -835,6 +864,7 @@ echo "escan -c (Verify if ips in vuln.txt are still vulnerable & update list)"
 echo "escan -c /someiplistfile.txt (Will check current user manual ip list)"
 echo "escan -v (Display current vulnerable ip list on screen)"
 echo "escan -vo (Display current vulnerable detailed OS ip list on screen)"
+echo "escan -u (Update Eternal Scanner binaries from github)"
 echo "escan -h This screen"
 echo ""
 echo "Example : escan -i 192.68.1.1/24 -s 3000 (for 3000 packets /s)"

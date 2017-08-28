@@ -43,6 +43,9 @@ prompt for ip value , and will proceed automatically to ip/ip range scan .
 - "escan -vo" , will display current Operating System vulnerable ip list (vuln_OS.txt) on screen (in case exists).
 To this file be created , user must first have the basic vuln.txt file already and then applying the command (escan -c) , vuln_OS.txt will be created .
 
+- "escan -u" , will update your current eternal scanner binaries . This switch will check if EternalScanner is installed
+on a system path or not , in case it is on a system path then will update the binaries directly from github in that path .
+In case Eternal scanner is not installed on a system path then it will update your binaries only in your eternal scannel local folder .
 
 - "./escan" normal launching method for eternal_scanner
 On a normal launching method , eternal scanner will autosetup the scanner speed to "500pk/s" (packets per second) .
