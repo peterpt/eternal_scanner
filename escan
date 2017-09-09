@@ -232,7 +232,7 @@ stat="0"
 
 logo
 echo ""
-echo -e "$orange" "(-c) $vl (switch activated , checking ...)"
+echo -e "$orange" "(-c) $uip (switch activated , checking ...)"
 
 sleep 2
 
@@ -911,7 +911,7 @@ else
 # User wrote on terminal escan -c (iplist file) , check if the path of user ip list exists
 if [ -f "$out" ]
 then
-
+uip="$out"
 # User ip lists exists , copy that list to eternal scanner path as filename msfip
 cp "$out" "$defdir/msfip"
 
@@ -926,8 +926,6 @@ do
 tm=$((i+1))
 if [ "$tm" == "11" ]
 then
-mv "$defdir/x0$i" "$defdir/x$tm" >/dev/null 2>&1
-else
 mv "$defdir/x0$i" "$defdir/x$tm" >/dev/null 2>&1
 fi
 done
