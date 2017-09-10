@@ -927,7 +927,7 @@ then
 echo -e "$green" "Windows XP Vulnerable ips"
 echo -e "$orange" "---------------------------$green "
 cat "$tmp1"
-echo "$orange" "---------------------------"
+echo -e "$orange" "---------------------------"
 rmtmp
 exit 1
 else
