@@ -13,6 +13,7 @@ green='\033[92m'
 red='\e[1;31m'
 yellow='\e[0;33m'
 orange='\e[38;5;166m'
+white='\e[0;37m'
 
 # Set default Scanner Speed
 rt="500"
@@ -84,6 +85,13 @@ elif [ "$stat" == "1" ]
 then
 pkill -f masscan* >/dev/null 2>&1
 fi
+}
+
+rmtmp() {
+tmp="$defdir/tmp.txt"
+tmp1="$defdir/tmp1.txt"
+rm -f $tmp >/dev/null 2>&1
+rm -f $tmp1 >/dev/null 2>&1
 }
 
 delf() {
@@ -850,6 +858,280 @@ echo ""
 exit 1
 fi
 fi
+
+# escan -l switch activated
+if [ "$1" == "-l" ]
+then
+# check if vuln_OS.txt exists
+vfos="$defdir/vuln_OS.txt"
+if [ ! -f "$vfos" ]
+then 
+echo -e "$yellow" "Detailed vulerable ip list not builded yet , write (escan -c)"
+exit 1
+else
+tmp="$defdir/tmp.txt"
+tmp1="$defdir/tmp1.txt"
+rmtmp
+logo
+echo ""
+echo -e "$green" "Search for OS on vulnerability ip list "
+echo -e "$yellow" "Currently stored in :$green $vfos"
+echo -e "$orange" "   +----------------------------+"
+echo -e "$orange" "   |$green  1$yellow for Windows 2000$orange        |"
+echo -e "$orange" "   |$green  2$yellow for Windows XP$orange          |"
+echo -e "$orange" "   |$green  3$yellow for Windows XP Pro X64$orange  |"
+echo -e "$orange" "   |$green  4$yellow for Windows Vista$orange       |"
+echo -e "$orange" "   |$green  5$yellow for Windows 7$orange           |"
+echo -e "$orange" "   |$green  6$yellow for Windows 8$orange           |"
+echo -e "$orange" "   |$green  7$yellow for Windows 10$orange          |"
+echo -e "$orange" "   |$green  8$yellow for Windows Server 2003$orange |"
+echo -e "$orange" "   |$green  9$yellow for Windows Server 2008$orange |"
+echo -e "$orange" "   |$green 10$yellow for Windows Server 2012$orange |"
+echo -e "$orange" "   |$green 11$yellow for Windows Server 2016$orange |" 
+echo -e "$orange" "   |$green 12$yellow Exit                  $orange  |"
+echo -e "$orange" "   +----------------------------+"
+echo -ne "$yellow" "Select from$green 1$yellow to$green 12$yellow :$green ";tput sgr0
+read sel
+echo -e "$yellow" ""
+case $sel in
+1)
+rmtmp
+#Windows 2000 Search
+w1=$(cat "$vfos" | grep "Windows 5.0")
+w2=$(cat "$vfos" | grep "Windows 2000")
+echo "$w1" > "$tmp"
+echo "$w2" >> "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]] 
+then
+echo -e "$green" "Windows 2000 Vulnerable ips"
+echo -e "$orange" "---------------------------$green "
+cat $tmp1
+echo -e "$orange" "---------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows 2000 ips found"
+rmtmp
+exit 1
+fi
+;;
+2)
+#Windows XP search
+rmtmp
+w1=$(cat "$vfos" | grep "Windows 5.1")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]]
+then 
+echo -e "$green" "Windows XP Vulnerable ips"
+echo -e "$orange" "---------------------------$green "
+cat "$tmp1"
+echo "$orange" "---------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows XP ips found"
+rmtmp
+exit 1
+fi
+;;
+3)
+rmtmp
+#Windows XP 64bit search
+w1=$(cat "$vfos" | grep "Windows 5.2")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]]
+then
+echo -e "$green" "Windows XP 64bit Vulnerable ips"
+echo -e "$orange" "---------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "---------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows XP 64bit ips found"
+rmtmp
+exit 1
+fi
+;;
+4)
+rmtmp
+#Windows Vista search
+w1=$(cat "$vfos" | grep "Windows 6.0")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]] 
+then
+echo -e "$green" "Windows Vista Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat $tmp1
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else 
+echo -e "$yellow" "No Vulnerable Windows Vista ips found"
+rmtmp
+exit 1
+fi
+;;
+5)
+rmtmp
+# Windows 7 search
+w1=$(cat "$vfos" | grep "Windows 6.1")
+w2=$(cat "$vfos" | grep "Windows 7")
+echo "$w1" > "$tmp"
+echo "$w2" >> "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]]
+then 
+echo -e "$green" "Windows 7 Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows 7 ips found"
+rmtmp
+exit 1
+fi
+;;
+6)
+# Windows 8 search
+rmtmp
+w1=$(cat "$vfos" | grep "Windows 6.2")
+w2=$(cat "$vfos" | grep "Windows 8")
+w3=$(cat "$vfos" | grep "Windows 8.1")
+echo "$w1" > "$tmp"
+echo "$w2" >> "$tmp"
+echo "$w3" >> "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]]
+then 
+echo -e "$green" "Windows 8 Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows 8 ips found"
+rmtmp
+exit 1
+fi
+;;
+7)
+# Windows 10 search
+rmtmp
+w1=$(cat "$vfos" | grep "Windows 10")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]] 
+then
+echo -e "$green" "Windows 10 Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows 10 ips found"
+rmtmp
+exit 1
+fi
+;;
+8)
+# Windows Server 2003 search
+rmtmp
+w1=$(cat "$vfos" | grep "2003")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]] 
+then 
+echo -e "$green" "Windows Server 2003 Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows Server 2003 ips found"
+rmtmp
+exit 1
+fi
+;;
+9)
+# Windows Server 2008 search
+rmtmp
+w1=$(cat "$vfos" | grep "2008" | sed -e "s/(R)//g")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]] 
+then 
+echo -e "$green" "Windows Server 2008 Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows Server 2008 ips found"
+rmtmp
+exit 1
+fi
+;;
+10)
+# Windows Server 2012 search
+rmtmp
+w1=$(cat $vfos | grep "2012")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]]
+then 
+echo -e "$green" "Windows Server 2012 Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows Server 2012 ips found"
+rmtmp
+exit 1
+fi
+;;
+11)
+# Windows Server 2016 search
+rmtmp
+w1=$(cat "$vfos" | grep "2016")
+echo "$w1" > "$tmp"
+sed 's/) /)\n/g' <$tmp >$tmp1
+if [[ -s "$tmp1" ]]
+then 
+echo -e "$green" "Windows Server 2016 Vulnerable ips"
+echo -e "$orange" "------------------------------------------------------------------------$green "
+cat "$tmp1"
+echo -e "$orange" "------------------------------------------------------------------------"
+rmtmp
+exit 1
+else
+echo -e "$yellow" "No Vulnerable Windows Server 2016 ips found"
+rmtmp
+exit 1
+fi
+;;
+12)
+exit 1
+;;
+*)
+echo -e "$yellow" "Invalid Input"
+exit 1
+;;
+esac
+fi
+fi
 # escan -h writen in terminal
 if [ "$1" == "-h" ]
 then
@@ -859,13 +1141,14 @@ echo "----------------------------------------------------"
 echo "Available Switches :"
 echo ""
 echo "escan -i 192.168.1.1/24 (Scan Ip/Ip Range)"
-echo "escan -s (Scanner speed Min: 100 Max: 10000000 /Default : 500"
-echo "escan -c (Verify if ips in vuln.txt are still vulnerable & update list)"
+echo "escan -s  (Scanner speed Min: 100 Max: 10000000 /Default : 500"
+echo "escan -c  (Verify if ips in vuln.txt are still vulnerable & update list)"
 echo "escan -c /someiplistfile.txt (Will check current user manual ip list)"
-echo "escan -v (Display current vulnerable ip list on screen)"
+echo "escan -l  (To display from vulnerable ip list a specific vulnerable OS ips)"
+echo "escan -v  (Display current vulnerable ip list on screen)"
 echo "escan -vo (Display current vulnerable detailed OS ip list on screen)"
-echo "escan -u (Update Eternal Scanner binaries from github)"
-echo "escan -h This screen"
+echo "escan -u  (Update Eternal Scanner binaries from github)"
+echo "escan -h  (This screen)"
 echo ""
 echo "Example : escan -i 192.68.1.1/24 -s 3000 (for 3000 packets /s)"
 echo ""
@@ -926,6 +1209,8 @@ do
 tm=$((i+1))
 if [ "$tm" == "11" ]
 then
+mv "$defdir/x$i" "$defdir/x$tm" >/dev/null 2>&1
+else
 mv "$defdir/x0$i" "$defdir/x$tm" >/dev/null 2>&1
 fi
 done

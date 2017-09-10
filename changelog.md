@@ -1,5 +1,6 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v2.0 - -l (list) switch implemented
 * v2.0 - -u (update) switch implemented 
 * v2.0 - -vo switch implemented to display detailed vulnerable ip list
 * v2.0 - Code improvements and new switch implemented (-v)

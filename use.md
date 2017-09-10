@@ -47,6 +47,10 @@ To this file be created , user must first have the basic vuln.txt file already a
 on a system path or not , in case it is on a system path then will update the binaries directly from github in that path .
 In case Eternal scanner is not installed on a system path then it will update your binaries only in your eternal scannel local folder .
 
+- "escan -l" , in case detailed vulnerability ip list file exists , it will provide user a choice to display
+a specific Windows version of vulnerable ips from that list .
+
+
 - "./escan" normal launching method for eternal_scanner
 On a normal launching method , eternal scanner will autosetup the scanner speed to "500pk/s" (packets per second) .
 Eternal Scanner will scan user ip or ip range input for vulnerable hosts and will create a vulnerable file (vuln.txt)in 
