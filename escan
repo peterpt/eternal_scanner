@@ -723,7 +723,7 @@ tempf=$(tail -n+3 $defdir/$vuln | sed -e "s/:445//g")
 echo "$tempf" > "$defdir/$vulntmp"
 tr " " "\n" <$defdir/$vulntmp >$msfi
 rm -f "$defdir/$vulntmp" >/dev/null 2>&1
-lm=$(cat $defdir/$msfi | wc -l)
+lm=$(cat "$msfi" | wc -l)
 rm -f "$defdir/$vuln" >/dev/null 2>&1
 if [ "$lm" -gt "500" ]
 then
