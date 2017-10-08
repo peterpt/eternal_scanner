@@ -438,12 +438,14 @@ echo ""
 echo -ne "$green" "IP/IP Range : ";tput sgr0
 read -r ip
 fi
-
+echo ""
+echo -e "$cyan" "User IP Input :$yellow $ip"
+echo ""
 #check if user input is empty
 if [[ -z "$ip" ]]
 then
 echo ""
-echo -e "$yellow" "No Input/Invalid"
+echo -e "$yellow" "Invalid IP/IP Range"
 exit 1
 fi
 
@@ -452,7 +454,7 @@ inv=$(echo "$ip" | grep [a-zA-Z] )
 if [[ ! -z "$inv" ]]
 then
 echo ""
-echo -e "$yellow" "No Input/Invalid" 
+echo -e "$yellow" "Invalid IP/IP Range" 
 exit 1
 fi
 
