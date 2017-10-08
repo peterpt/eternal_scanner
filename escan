@@ -425,7 +425,7 @@ msfm
 mass(){
 echo ""
 echo -e "$orange" "For switches write (escan -h)"
-echo -e "$yellow" "Config Port: $port | Rate Speed: $rt pkt/s"
+echo -e "$cyan" "Config Port:$yellow $port $cyan | Rate Speed:$yellow $rt $cyan pkt/s"
 delf
 mass="$defdir/masscan"
 echo ""
