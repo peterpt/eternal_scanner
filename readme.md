@@ -3,7 +3,7 @@
 Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 .
 
 # Screenshots
-<img src="https://s1.postimg.org/9p5m0kfaof/image.jpg" width="55%"></img>
+<img src="https://s1.postimg.org/7b7lfgw95r/image.jpg" width="55%"></img>
 
 <img src="https://s21.postimg.org/45d8z2fmv/image.png" width="25%"></img><img src="https://s11.postimg.org/5rmdqf0jn/image.png" width="25%"></img><img src="https://s1.postimg.org/20bbkhijrz/image.jpg" width="25%"></img><img src="https://s13.postimg.org/hsjofgyzr/image.png" width="25%"></img>
 
