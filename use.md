@@ -27,11 +27,10 @@ created by eternal_scanner on 1st running (in case positive results are achieved
 called "vuln_OS.txt" that contains not only the vulnerable ips from (vuln.txt) but also their respective Operating System .
 vuln_OS.txt is only created when this switch is activated and in not any other circunstance or switch .
 
-- "escan -c /root/someiplist.txt" , will check manual ip list that user provide to escan , and will add the vulnerable ip
+- "escan -ck /root/someiplist.txt" , will check manual ip list that user provide to escan , and will add the vulnerable ip
 list to vuln.txt file in the end .
-In case user iplist path is wrong then escan will set the default "vuln.txt" file , in case exists .
 
-* Note : User manual ip list example should be strucutred with one ip per line
+* Note : User manual ip list example should be structured with one ip per line
 
 - "escan -i 192.168.1.1/24" , using this command directly from terminal will avoid eternal scanner
 prompt for ip value , and will proceed automatically to ip/ip range scan .
@@ -41,14 +40,13 @@ prompt for ip value , and will proceed automatically to ip/ip range scan .
 - "escan -v" , will display current vulnerable ip list (vuln.txt) on screen (in case exists)
 
 - "escan -vo" , will display current Operating System vulnerable ip list (vuln_OS.txt) on screen (in case exists).
-To this file be created , user must first have the basic vuln.txt file already and then applying the command (escan -c) , vuln_OS.txt will be created .
 
 - "escan -u" , will update your current eternal scanner binaries . This switch will check if EternalScanner is installed
 on a system path or not , in case it is on a system path then will update the binaries directly from github in that path .
 In case Eternal scanner is not installed on a system path then it will update your binaries only in your eternal scannel local folder .
 
-- "escan -l" , in case detailed vulnerability ip list file exists , it will provide user a choice to display
-a specific Windows version of vulnerable ips from that list .
+- "escan -l" , in case detailed vulnerability ip list file exists , it will provide user a search input field to
+look in Eternal scanner database . 
 
 
 - "./escan" normal launching method for eternal_scanner
@@ -61,16 +59,20 @@ add the new detected hosts to that file .
 # Switches not available or not allowed :
 
 - ./escan -s 3000 -c   - this command will not work
+./escan -s 3000 -i 192.168.1.1   - this command will not work
 
 
 ## Installing dependencies for Eternal Scanner
 
 - Eternal Scanner does a quick search on every start for masscan and metasploit-framework files , in case any of those 
 tools does not exist on a system PATH variable , then eternal scanner will not run .
-On debian pentest based distributions (Kali,Parrot,etc..) , installing masscan should be easy as writing apt-get install masscan
-, but by default on pentest distros , these tools are already installed (masscan & metasploit framework).
+On debian pentest based distributions (Kali,Parrot,etc..) , installing masscan should be easy as writing 
+(apt-get install masscan), but by default on pentest distros , these tools are already installed 
+(masscan & metasploit framework).
 On non pentest distributions and in case your debian distribution does not have in their repository these tools , then 
 these tools can be compiled from their source code on your Linux OS just by following author instructions .
+From version 2.0 and up , eternal scanner will require wget to be installed , wget is required to update eternal scanner
+binaries directly from github with the switch (escan -u) , wget instalation can be done by (apt-get install wget)
 
 For manual install of masscan github :
 https://github.com/robertdavidgraham/masscan

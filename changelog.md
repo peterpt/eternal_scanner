@@ -1,5 +1,7 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v2.1 - Changes in (escan -l) switch , search database input replaced old list OS menu selection)
+* v2.1 - Duplicate code removed & -c /iplist switch changed to -ck /iplist 
 * v2.0 - -l (list) switch implemented
 * v2.0 - -u (update) switch implemented 
 * v2.0 - -vo switch implemented to display detailed vulnerable ip list

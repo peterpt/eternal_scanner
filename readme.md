@@ -1,33 +1,24 @@
-## ETERNAL SCANNER 2.0
+## ETERNAL SCANNER 2.1
 
 Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 .
 
 # Screenshots
-<img src="https://s24.postimg.org/guwhjz9rp/image.png" width="55%"></img>
+<img src="https://s1.postimg.org/9p5m0kfaof/image.jpg" width="55%"></img>
 
-<img src="https://s21.postimg.org/45d8z2fmv/image.png" width="25%"></img><img src="https://s11.postimg.org/5rmdqf0jn/image.png" width="25%"></img><img src="https://s9.postimg.org/qpyzdli3z/switch.png" width="25%"></img><img src="https://s13.postimg.org/hsjofgyzr/image.png" width="25%"></img>
+<img src="https://s21.postimg.org/45d8z2fmv/image.png" width="25%"></img><img src="https://s11.postimg.org/5rmdqf0jn/image.png" width="25%"></img><img src="https://s1.postimg.org/20bbkhijrz/image.jpg" width="25%"></img><img src="https://s13.postimg.org/hsjofgyzr/image.png" width="25%"></img>
 
-## 2.0 Version (New Implementations)
-* Autoinstalation on 1st run
-* <img src="https://s29.postimg.org/55f4m5653/20c.png" width="25%"></img>
+## 2.1 Version (New Implementations)
+* Search in database reviewed (escan -l)
+* <img src="https://s1.postimg.org/6qtbx2agnj/image.jpg" width="50%"></img>
 
-* (-i Switch to scan ips directly from terminal without prompt)
-* <img src="https://s29.postimg.org/7k706kmdz/20a.png" width="25%"></img>
-
-* (-i and -s switches implemented together to scan directly from terminal at some rate speed)
-* <img src="https://s29.postimg.org/h60kmvdjr/20b.png" width="25%"></img>
-
-* (-c Switch to recheck current vulnerable ip list)
-* <img src="https://s1.postimg.org/3rywvvc0f/image.png" width="25%"></img>
-
-* (Using the -c switch eternal scanner will create a detailed file from vulnerable ips)
-* <img src="https://s21.postimg.org/4xrv3vbyv/image.png" width="25%"></img>
+* Source Code Reviewed from 1272 to 774 lines
 
 # Video
 * Eternal Scanner 2.0 : https://www.youtube.com/watch?v=8heVXfcywq0
 # Requirements
 - masscan
 - metasploit-framework
+- wget
 
 # How to Install
 - git clone https://github.com/peterpt/eternal_scanner.git
