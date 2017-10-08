@@ -425,16 +425,37 @@ msfm
 mass(){
 echo ""
 echo -e "$orange" "For switches write (escan -h)"
-echo -e "$cyan" "Config Port:$yellow $port $cyan | Rate Speed:$yellow $rt $cyan pkt/s"
+echo -e "$cyan" "Config Port:$yellow $port$cyan | Rate Speed:$yellow $rt$cyan pkt/s"
 delf
 mass="$defdir/masscan"
 echo ""
 if [[ -z "$ip" ]]
 then
-echo -e "$orange" "Enter IP or IP range to scan ex: 192.168.1.32 or 192.168.1.1/24"
+echo -e "$orange" "Enter IP or IP range ."
+echo -e "$orange" "Example 1 :$cyan 192.168.1.32"
+echo -e "$orange" "Example 2 :$cyan 192.168.1.1/24"
+echo ""
 echo -ne "$green" "IP/IP Range : ";tput sgr0
 read -r ip
 fi
+
+#check if user input is empty
+if [[ -z "$ip" ]]
+then
+echo ""
+echo -e "$yellow" "No Input/Invalid"
+exit 1
+fi
+
+#check if user input have any letters
+inv=$(echo "$ip" | grep [a-zA-Z] )
+if [[ ! -z "$inv" ]]
+then
+echo ""
+echo -e "$yellow" "No Input/Invalid" 
+exit 1
+fi
+
 echo ""
 val0="0.0.0.0"
 if [ "$ip" == "$val0" ]
