@@ -406,16 +406,26 @@ getdata
 
 # Function to split ip list file bigger than 500 ips
 splitip(){
-split -d -l 500 $defdir/msfip $defdir/x
+split -a 5 -d -l 500 $defdir/msfip $defdir/x
 tms=$(find $defdir/ -name "x*" | wc -l)
 for i in $(seq 0 "$tms")
 do
 tm=$((i+1))
-if [ "$tm" == "11" ]
+if [[ "$tm" -ge 10 && "$tm" -le 99 ]]
 then
-mv "$defdir/x$i" "$defdir/x$tm" >/dev/null 2>&1
-else
+mv "$defdir/x000$i" "$defdir/x$tm" >/dev/null 2>&1
+fi
+if [[ "$tm" -ge 100 && "$tm" -le 999 ]]
+then
+mv "$defdir/x00$i" "$defdir/x$tm" >/dev/null 2>&1
+fi
+if [[ "$tm" -ge 1000 && "$tm" -le 9999 ]]
+then
 mv "$defdir/x0$i" "$defdir/x$tm" >/dev/null 2>&1
+fi
+if [[ "$tm" -ge 0 && "$tm" -le 9 ]]
+then
+mv "$defdir/x0000$i" "$defdir/x$tm" >/dev/null 2>&1
 fi
 done
 msfm
