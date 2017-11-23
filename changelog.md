@@ -1,5 +1,9 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v2.2 - Will detect if for eternal romance script is needed any python module dependency 
+* v2.2 - Eternal Romance results will appear when user make a search in database
+* v2.2 - Internet Connection check before update/ip check/ip scan
+* v2.2 - Eternal Romance (SMB V1) Vulnerability check added
 * v2.1 - Changes in (escan -l) switch , search database input replaced old list OS menu selection)
 * v2.1 - Duplicate code removed & -c /iplist switch changed to -ck /iplist 
 * v2.0 - -l (list) switch implemented

@@ -22,13 +22,9 @@ unreliable outputs .
 For Normal 100Mbit internet connection users it is not advised to go further than "10000" over the -s switch .
 
 - "escan -c" will recheck if current vulnerable ip list in eternal_scanner is still vulnerable (In case exists).
-Latest changes in code , allows when this switch is activated , as it is , to not only recheck the vuln.txt file automatically
-created by eternal_scanner on 1st running (in case positive results are achieved) , but also create another detailed file
-called "vuln_OS.txt" that contains not only the vulnerable ips from (vuln.txt) but also their respective Operating System .
-vuln_OS.txt is only created when this switch is activated and in not any other circunstance or switch .
 
-- "escan -ck /root/someiplist.txt" , will check manual ip list that user provide to escan , and will add the vulnerable ip
-list to vuln.txt file in the end .
+- "escan -ck /root/someiplist.txt" , will check manual ip list that user provide to escan , 
+and will add the vulnerable ips to vuln.txt file in the end .
 
 * Note : User manual ip list example should be structured with one ip per line
 
@@ -48,6 +44,17 @@ In case Eternal scanner is not installed on a system path then it will update yo
 - "escan -l" , in case detailed vulnerability ip list file exists , it will provide user a search input field to
 look in Eternal scanner database . 
 
+- "escan -er" , Will check current vulnerability ip list (case exists) for Eternal Romance vulnerabilty , and will
+create an output file in /usr/local/share/Eternal_Scanner/vulner.txt .
+
+Some outputs from Eternal Romance Checks :
+Vulnerable = The Ip is Vulnerable to Eternal Romance Exploitation (SMB V1) or that Windows OS was not yet patched to this vulnerability
+Not Vulnerable = The Ip is not Vulnerable to Eternal Romance Exploitation (SMB V1) or that Windows OS was already patched to this exploitation .
+Time Out / Offline = It means that current ip is not online at the time of scan , or that current ip did not reply in maximum timeout .
+
+Should be considered that many ISPS apply dhcp ips to their clients , this will mean that the current first scan of some ip could be
+in another dhcp ip lease and will not return to to the original ip when eternal scanner got it for the first time .
+
 
 - "./escan" normal launching method for eternal_scanner
 On a normal launching method , eternal scanner will autosetup the scanner speed to "500pk/s" (packets per second) .
@@ -64,15 +71,17 @@ add the new detected hosts to that file .
 
 ## Installing dependencies for Eternal Scanner
 
-- Eternal Scanner does a quick search on every start for masscan and metasploit-framework files , in case any of those 
-tools does not exist on a system PATH variable , then eternal scanner will not run .
+- Eternal Scanner does a quick search on every start for masscan , metasploit-framework files , wget and python-pip ,
+in case any of those tools does not exist on a system PATH variable , then eternal scanner will not run .
 On debian pentest based distributions (Kali,Parrot,etc..) , installing masscan should be easy as writing 
 (apt-get install masscan), but by default on pentest distros , these tools are already installed 
 (masscan & metasploit framework).
 On non pentest distributions and in case your debian distribution does not have in their repository these tools , then 
 these tools can be compiled from their source code on your Linux OS just by following author instructions .
 From version 2.0 and up , eternal scanner will require wget to be installed , wget is required to update eternal scanner
-binaries directly from github with the switch (escan -u) , wget instalation can be done by (apt-get install wget)
+binaries directly from github with the switch (escan -u) , wget instalation can be done by (apt-get install wget) .
+Python-pip (pip) is required for user to install Eternal romance python modules case his linux repository does not have 
+thosemodules over apt-get .
 
 For manual install of masscan github :
 https://github.com/robertdavidgraham/masscan
@@ -84,6 +93,31 @@ Installing metasploit on a specific directory that is not on a system path varia
 a system path (like : /usr/bin  , or /usr/sbin) pointing to your specific metasploit directory .
 
 - Eternal Scanner asks to your Linux OS if msfconsole (part of metasploit-framework) exists before running .
+
+Python modules for eternal romance check :
+
+The required python modules to run this check are : python-crypto python-impacket python-pyasn1-modules
+all these modules can be install by apt-get .
+In case your linux OS does not have these libraries and if you are using a debian based linux OS like :
+Kali
+Ubuntu
+Devuan
+Debian
+etc....
+
+Consider adding to your /etc/apt/sources.list file these repositories :
+deb  http://deb.debian.org/debian sid main contrib non-free
+deb-src  http://deb.debian.org/debian sid main contrib non-free
+
+Then execute : "apt-get update && apt-get install python-crypto python-impacket python-pyasn1-modules"
+
+atfer installing these modules you can remove these repositories from your : /etc/apt/sources.list  file , and
+execute : "apt-get update"
+
+an alternative installation for these modules is using pip , by writing in your terminal :
+"pip install crypto"
+"pip install impacket"
+"pip install pyasn1-modules"
 
 ## Some Bugs that may appear using Eternal Scanner
 
