@@ -1,8 +1,9 @@
 ## ETERNAL SCANNER (How To Use)
 
 * Disclaimer
-- Eternal Scanner does not exploit any IP , Eternal Scanner only checks if IP or IP Range is exploitable with CVE-2017-0144
+- Eternal Scanner does not exploit any IP , Eternal Scanner only checks if IP or IP Range is exploitable with CVE-2017-0144/0145
 - CVE-2017-0144 Exploit Information : https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
+- CVE-2017-0145 Exploit Information : https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0145
 - Scanning an IP or an IP Range that is not under your maintenance is forbidden in many countries and it goes against the law .
 - Eternal Scanner was build for network System administrators in order to check if any station is vulnerable to this exploit .
 
