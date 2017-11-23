@@ -49,9 +49,9 @@ look in Eternal scanner database .
 create an output file in /usr/local/share/Eternal_Scanner/vulner.txt .
 
 Some outputs from Eternal Romance Checks :
-Vulnerable = The Ip is Vulnerable to Eternal Romance Exploitation (SMB V1) or that Windows OS was not yet patched to this vulnerability
-Not Vulnerable = The Ip is not Vulnerable to Eternal Romance Exploitation (SMB V1) or that Windows OS was already patched to this exploitation .
-Time Out / Offline = It means that current ip is not online at the time of scan , or that current ip did not reply in maximum timeout .
+* Vulnerable = The Ip is Vulnerable to Eternal Romance Exploitation (SMB V1) or that Windows OS was not yet patched to this vulnerability
+* Not Vulnerable = The Ip is not Vulnerable to Eternal Romance Exploitation (SMB V1) or that Windows OS was already patched to this exploitation .
+* Time Out / Offline = It means that current ip is not online at the time of scan , or that current ip did not reply in maximum timeout .
 
 Should be considered that many ISPS apply dhcp ips to their clients , this will mean that the current first scan of some ip could be
 in another dhcp ip lease and will not return to to the original ip when eternal scanner got it for the first time .
