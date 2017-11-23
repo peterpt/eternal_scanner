@@ -1,5 +1,5 @@
 #!/bin/bash  
-# Eternal Scanner 2.1 by peterpt             
+# Eternal Scanner 2.2 by peterpt             
 # https://github.com/peterpt/eternal_scanner 
 #
 # Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
