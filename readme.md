@@ -1,6 +1,6 @@
 ## ETERNAL SCANNER 2.2
 
-Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 .
+Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 & Eternal Romance (named pipe) CVE-2017-0145 .
 
 # Screenshots
 <img src="https://s2.postimg.org/nxhszh0s9/eromance3.jpg" width="55%"></img>
