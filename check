@@ -25,7 +25,28 @@ MSRPC_UUID_DNSSERVER     = uuidtup_to_bin(('50ABC2A4-574D-40B3-9D66-EE4FD5FBA076
 MSRPC_UUID_CTX_WINSTATION_API_SERVICE     = uuidtup_to_bin(('5CA4A760-EBB1-11CF-8611-00A0245420ED','1.0'))
 MSRPC_UUID_SSDPSRV     = uuidtup_to_bin(('4B112204-0E19-11D3-B42B-0000F81FEB9F','1.0'))
 MSRPC_UUID_TAPSRV     = uuidtup_to_bin(('2F5F6520-CA46-1067-B319-00DD010662DA','1.0'))
-MSRPC_UUID_NTSVCS     = uuidtup_to_bin(('8D9F4E40-A03D-11CE-8F69-08003E30051B','1.0'))
+MSRPC_UUID_ATSVC     = uuidtup_to_bin(('1ff70682-0a51-30e8-076d-740be8cee98b','1.0'))
+MSRPC_UUID_AUDIOSRV     = uuidtup_to_bin(('3faf4738-3a21-4307-b46c-fdda9bb8c0d5','1.0'))
+MSRPC_UUID_CERT     = uuidtup_to_bin(('91ae6020-9e3c-11cf-8d7c-00aa00c091be','0.0'))
+MSRPC_UUID_DAVCLNTRPC     = uuidtup_to_bin(('c8cb7687-e6d3-11d2-a958-00c04f682e16','1.0'))
+MSRPC_UUID_EPMP     = uuidtup_to_bin(('e1af8308-5d1f-11c9-91a4-08002b14a0fa','3.0'))
+MSRPC_UUID_EVENTLOG     = uuidtup_to_bin(('82273fdc-e32a-18c3-3f78-827929dc23ea','0.0'))
+MSRPC_UUID_INITSHUTDOWN     = uuidtup_to_bin(('894de0c0-0d55-11d3-a322-00c04fa321a1','1.0'))
+MSRPC_UUID_IKEYSVC     = uuidtup_to_bin(('8d0ffe72-d252-11d0-bf8f-00c04fd9126b','1.0'))
+MSRPC_UUID_ICERTPROTECT     = uuidtup_to_bin(('0d72a7d4-6148-11d1-b4aa-00c04fb66ea0','1.0'))
+MSRPC_UUID_NSIS     = uuidtup_to_bin(('d6d70ef0-0e3b-11cb-acc3-08002b1d29c4','1.0'))
+MSRPC_UUID_LLSRPC     = uuidtup_to_bin(('342cfd40-3c6c-11ce-a893-08002b2e9c6d','0.0'))
+MSRPC_UUID_DSSETUP     = uuidtup_to_bin(('3919286a-b10c-11d0-9ba8-00c04fd92ef5','0.0'))
+MSRPC_UUID_MSGSVCSEND    = uuidtup_to_bin(('5a7b91f8-ff00-11d0-a9b2-00c04fb6e6fc','1.0'))
+MSRPC_UUID_NDDEAPI    = uuidtup_to_bin(('2f5f3220-c126-1076-b549-074d078619da','1.2'))
+MSRPC_UUID_NETDFS    = uuidtup_to_bin(('4fc742e0-4a10-11cf-8273-00aa004ae673','3.0'))
+MSRPC_UUID_POLICYAGENT    = uuidtup_to_bin(('d335b8f6-cb31-11d0-b0f9-006097ba4e54','1.5'))
+MSRPC_UUID_PMAPAPI    = uuidtup_to_bin(('369ce4f0-0fdc-11d3-bde8-00c04f8eee78','1.0'))
+MSRPC_UUID_PROTECTED_STORAGE    = uuidtup_to_bin(('c9378ff1-16f7-11d0-a0b2-00aa0061426a','1.0'))
+MSRPC_UUID_SECLOGON    = uuidtup_to_bin(('12b81e99-f207-4a4c-85d3-77b42f76fd14','1.0'))
+MSRPC_UUID_TRKWKS    = uuidtup_to_bin(('300f3532-38cc-11d0-a3f0-0020af6b0add','1.2'))
+MSRPC_UUID_WKSSVC    = uuidtup_to_bin(('6bffd098-a112-3610-9833-46c3f87e345a','1.0'))
+MSRPC_UUID_WINLOGONRPC   = uuidtup_to_bin(('a002b3a0-c9b7-11d1-ae88-0080c75e4ec1','1.0'))
 
 pipes = {
 	'browser'  : MSRPC_UUID_BROWSER,
@@ -34,10 +55,31 @@ pipes = {
 	'lsarpc'   : MSRPC_UUID_LSARPC,
 	'samr'     : MSRPC_UUID_SAMR,
         'dnsserver'     : MSRPC_UUID_DNSSERVER,
-        'ctx_winstation_api_service'     : MSRPC_UUID_CTX_WINSTATION_API_SERVICE,
+        'termsrv'     : MSRPC_UUID_CTX_WINSTATION_API_SERVICE,
         'ssdpsrv'     : MSRPC_UUID_SSDPSRV,
         'tapsrv'     : MSRPC_UUID_TAPSRV,
-        'ntsvcs'     : MSRPC_UUID_NTSVCS,
+        'mstask'     : MSRPC_UUID_ATSVC,
+        'audiosrv'     : MSRPC_UUID_AUDIOSRV,
+        'certsrv'     : MSRPC_UUID_CERT,
+        'webclient'     : MSRPC_UUID_DAVCLNTRPC,
+        'rpcss'     : MSRPC_UUID_EPMP,
+        'eventlog'     : MSRPC_UUID_EVENTLOG,
+        'winlogon'     : MSRPC_UUID_INITSHUTDOWN,
+        'cryptsvc'     : MSRPC_UUID_IKEYSVC,
+        'cryptsvc'     : MSRPC_UUID_ICERTPROTECT,
+        'locator'     : MSRPC_UUID_NSIS,
+        'llssrv'     : MSRPC_UUID_LLSRPC,
+        'lsass'     : MSRPC_UUID_DSSETUP,
+        'messenger'     : MSRPC_UUID_MSGSVCSEND,
+        'netdde'     : MSRPC_UUID_NDDEAPI,
+        'dfssvc'     : MSRPC_UUID_NETDFS,
+        'policyagent'     : MSRPC_UUID_POLICYAGENT,
+        'winlogon'     : MSRPC_UUID_PMAPAPI,
+        'lsass'     : MSRPC_UUID_PROTECTED_STORAGE,
+        'seclogon'     : MSRPC_UUID_SECLOGON,
+        'trkwks'     : MSRPC_UUID_TRKWKS,
+        'svchost'     : MSRPC_UUID_WKSSVC,
+        'winlogon'     : MSRPC_UUID_WINLOGONRPC,
 }
 
 
