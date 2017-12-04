@@ -73,14 +73,14 @@ then
 # Increase tm value + 1 from its current value
 tm=$((tm+1))
 
-# until 60s if msflog is not created then elog will exit
-if [ "$tm" == "60" ]
+# until 120s if msflog is not created then elog will exit
+if [ "$tm" == "120" ]
 then
 echo -e "$yellow" "Metasploit Not Detected"
 exit 0
 else
 
-# Timmer is not yet at 60 , pause 1 second and loop again
+# Timmer is not yet at 120 , pause 1 second and loop again
 sleep 1
 start
 fi
@@ -97,8 +97,8 @@ then
 a="$gmsft"
 sleep 1
 
-# timer value sets to 59 of 60 seconds , this way when elog ends its job it will reach 60s in 1 second and will exit itself so escan can continue its job
-tm="59"
+# timer value sets to 119 of 120 seconds , this way when elog ends its job it will reach 120s in 1 second and will exit itself so escan can continue its job
+tm="119"
 
 #start loop
 start
@@ -109,7 +109,7 @@ else
 
 echo "$gmsft"
 a="$gmsft"
-tm="59"
+tm="119"
 sleep 1
 
 # start loop
