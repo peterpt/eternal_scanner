@@ -802,6 +802,8 @@ echo -e "$cyan" "+----------------------------------------------+"
 echo -e "$green" ""
 cat "$defdir/$vuln" | sed -e "s/:445//g"
 echo -e "$cyan" "+----------------------------------------------+"
+nmip=$(tail -n+3 $defdir/$vuln | wc -l )
+echo -e "$orange" "Found $yellow $nmip $orange Records"
 exit 1
 else
 echo -e "$yellow" "Vulnerability IP file list not yet available"
@@ -820,7 +822,9 @@ echo -e "$yellow" "Currently stored in $defdir"
 echo -e "$cyan" "+----------------------------------------------+"
 echo -e "$green" ""
 cat "$defdir/$vulnos" | sed -e "s/:445//g"
+nmip=$(cat $defdir/$vuln | wc -l)
 echo -e "$cyan" "+----------------------------------------------+"
+echo -e "$orange" "Found $yellow $nmip $orange Records"
 exit 1
 else
 if [ -f "$defdir/$vuln" ]
