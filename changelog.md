@@ -1,5 +1,6 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v2.3 - Number of ips with port 445 opened will be displayed while scanner is running
 * v2.2 - Number of ips in vulnerable list will display at the end when user write (escan -v or escan -vo"
 * v2.2 - Will detect if for eternal romance script is needed any python module dependency 
 * v2.2 - Eternal Romance results will appear when user make a search in database

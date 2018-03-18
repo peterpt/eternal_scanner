@@ -1,5 +1,5 @@
 #!/bin/bash  
-# Eternal Scanner 2.2 by peterpt             
+# Eternal Scanner 2.3 by peterpt             
 # https://github.com/peterpt/eternal_scanner 
 #
 # Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
@@ -17,7 +17,7 @@ yellow='\e[0;33m'
 orange='\e[38;5;166m'
 rt="500"
 #Current Version
-vers="2.2"
+vers="2.3"
 
 # Set Default Data directory
 defdir="/usr/local/share/Eternal_Scanner"
@@ -646,7 +646,8 @@ tn=$(date +"%H:%M:%S")
 echo -e "\033[33;7mScanner started at $tn , Please Wait\033[0m"
 rm -rf "$defdir/stat" >/dev/null 2>&1
 stat="1"
-masscan "$ip" -p "$port" --rate "$rt" --exclude 255.255.255.255 --output-filename "$mass" >/dev/null 2>&1 
+echo "1" > $defdir/stat 
+masscan "$ip" -p "$port" --rate "$rt" --exclude 255.255.255.255 --output-filename "$mass" >/dev/null 2>&1 & echo $! > "$defdir/pid.tmp" & elog
 echo ""
 tst=$(date +"%H:%M:%S")
 echo -e "\033[33;7mScanner stopped/finished at $tst \033[0m"
@@ -666,7 +667,8 @@ tn=$(date +"%H:%M:%S")
 echo -e "\033[33;7mScanner started at $tn , Please Wait\033[0m"
 rm -rf "$defdir/stat" >/dev/null 2>&1
 stat="1"
-masscan "$ip" -p "$port" --rate "$rt" --output-filename "$mass" >/dev/null 2>&1 
+echo "1" > $defdir/stat
+masscan "$ip" -p "$port" --rate "$rt" --output-filename "$mass" >/dev/null 2>&1 & echo $! > $defdir/pid.tmp & elog
 echo ""
 tst=$(date +"%H:%M:%S")
 echo -e "\033[33;7mScanner stopped/finished at $tst \033[0m"
