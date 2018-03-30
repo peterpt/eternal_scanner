@@ -125,7 +125,7 @@ fi
 fi
 fi
 }
-
+# output splash screen when elog will check metasploit
 msfc(){
 echo -e "$orange" "+---------------------------------------------------+"
 echo -e "$orange" "|$green Realtime Eternal Scan Metasploit results Checkout$orange |"
@@ -169,7 +169,7 @@ then
 
 tm=$((tm+1))
 
-# until 15s if msflog is not created then elog will exit
+# until 10s if masscan file output is not created then elog will exit
 if [ "$tm" == "10" ]
 then
 echo -e "$yellow" "Masscan file was not found"
@@ -177,15 +177,15 @@ rm -rf "$defdir/pid.tmp" >/dev/null 2>&1
 exit 1
 else
 
-# Timmer is not yet at 10 , pause 100 miliseconds and loop again
+# Timmer is not yet at 10 , pause 1 second and loop again
 sleep 1
 mass
 fi
 else
 
-# At this point msfconsole PID is running and msflog was generated to be consulted 
+# At this point masscan PID is running and masscan ip output was generated to be consulted 
 
-# gmsft will grab the last value (scanned) from msflog
+# gmsft will grab the last value (scanned) from masscan
 gmsft=$(grep "open" $massl | wc -l)
 
 # In case gmsft is equal to variable (a) then set variable a with same value and wait 1 second
@@ -202,9 +202,9 @@ mass
 else
 
 # In case gmsft is different then variable (a) then setup a with same value
-# this process avoids repeating the same percentage on screen from msflog
+# this process avoids repeating the same percentage on screen from scanner output
 
-echo -ne "$yellow $gmsft$cyan Ips To Check Ahead\033[0K\r"
+echo -ne "$green  Ips detected with port$yellow 445$green opened so far$yellow :$cyan $gmsft\033[0K\r"
 a="$gmsft"
 tm="9"
 sleep 1
@@ -215,13 +215,19 @@ fi
 fi
 fi
 }
-
-
+masplsh () {
+echo -e "$orange -------------------------------------------"
+echo -e "$orange |$green  Scanning for Ips with port$yellow 445$green opened $orange |"
+echo -e "$orange -------------------------------------------"
+echo ""
+}
+# If stat file is 1 then it means that masscan is running
 if [ "$stat" == "1" ] 
 then
+masplsh
 mass
 fi
-
+# If stat file is 2 then it means that metasploit is running
 if [ "$stat" == "2" ] 
 then
 msfc

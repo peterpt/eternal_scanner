@@ -17,6 +17,7 @@ Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 & E
 * Eternal Scanner 2.2 (install & run) : https://www.youtube.com/watch?v=BS9kYs-Y64U
 
 # Requirements
+- netcat
 - masscan
 - metasploit-framework
 - wget (To Update Eternal Scanner Directly from github)
@@ -31,7 +32,7 @@ Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 & E
 - OR ./escan -h (to change scanner speed)
 
 # Install Requirements
-- apt-get install masscan metasploit-framework wget python-pip python-crypto python-impacket python-pyasn1-modules
+- apt-get install masscan metasploit-framework wget python-pip python-crypto python-impacket python-pyasn1-modules netcat
 
 For python modules as alernative it can be used pip to install the libraries :
 - pip install crypto && pip install impacket && pip install pyasn1-modules

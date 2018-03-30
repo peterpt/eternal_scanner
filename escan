@@ -61,6 +61,13 @@ pkill -f masscan* >/dev/null 2>&1
 fi
 }
 
+chknet () {
+echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+echo -e "$yellow" "Opps , not connected to Internet"
+exit 1
+fi	
+}
 
 #Check install
 if [ ! -d "$defdir" ] 
@@ -367,6 +374,13 @@ echo ""
 echo -e "$yellow" "Try : apt-get install metasploit-framework"
 exit 1
 fi  
+which nc > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+   echo -e "$red" "Netcat Missing"
+echo ""
+echo -e "$yellow" "Try : apt-get install netcat"
+exit 1
+fi  
 which masscan > /dev/null 2>&1
       if [ "$?" -eq "1" ]; then
    echo -e "$red" "Masscan Missing"
@@ -640,7 +654,7 @@ read -r opt
 echo ""
 case "$opt" in
 y|Y|yes|YES|Yes)
-echo -e "$green" "Press CTRL-C (1X ONLY) to stop the scanner "
+echo -e "$green" "Press CTRL+C (1X ONLY) to stop the scanner "
 echo ""
 tn=$(date +"%H:%M:%S")
 echo -e "\033[33;7mScanner started at $tn , Please Wait\033[0m"
@@ -661,7 +675,7 @@ exit 1
 ;;
 esac
 else
-echo -e "$green" "Press CTRL-C (1X ONLY) to stop the scanner "
+echo -e "$green" "Press CTRL+C (1X ONLY) to stop the scanner "
 echo ""
 tn=$(date +"%H:%M:%S")
 echo -e "\033[33;7mScanner started at $tn , Please Wait\033[0m"
@@ -720,11 +734,7 @@ fi
 # escan only written in terminal
 if [ -z "$1" ]
 then
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-echo -e "$yellow" "Opps , not connected to Internet"
-exit 1
-fi
+chknet
 chkdep
 logo
 mass
@@ -733,11 +743,7 @@ fi
 
 if [ "$1" == "-er" ]
 then
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-echo -e "$yellow" "Opps , not connected to Internet"
-exit 1
-fi
+chknet
 chkdep
 logo
 etr
@@ -747,11 +753,7 @@ fi
 #Switch for input ip
 if [ "$1" == "-i" ]
 then
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-echo -e "$yellow" "Opps , not connected to Internet"
-exit 1
-fi
+chknet
 if [ -z "$2" ]
 then
 escan -h
@@ -843,11 +845,7 @@ fi
 fi
 if [ "$1" == "-u" ]
 then
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-echo -e "$yellow" "Opps , not connected to Internet"
-exit 1
-fi
+chknet
 # Check if eternal scanner is installed on a system path
 es=$(whereis escan |awk '{print$2}')
 el=$(whereis elog |awk '{print$2}')
@@ -919,11 +917,7 @@ out="$2"
 
 if [ "$1" == "-c" ]
 then
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-echo -e "$yellow" "Opps , not connected to Internet"
-exit 1
-fi
+chknet
 if [ -f "$defdir/$vuln" ]
 then
 delf
@@ -958,11 +952,7 @@ fi
 
 if [ "$1" == "-ck" ]
 then
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-echo -e "$yellow" "Opps , not connected to Internet"
-exit 1
-fi
+chknet
 if [ -z "$out" ]
 then
 echo "No input iplist file to check."
@@ -994,11 +984,7 @@ fi
 fi
 if [ "$1" == "-s" ]
 then
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-echo -e "$yellow" "Opps , not connected to Internet"
-exit 1
-fi
+chknet
 if [ -z "$out" ]
 then
 echo "Invalid argument , write ./escan -h for help"
