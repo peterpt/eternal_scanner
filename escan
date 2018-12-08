@@ -1,6 +1,6 @@
 #!/bin/bash  
 # Eternal Scanner 2.3 by peterpt             
-# https://github.com/peterpt/eternal_scanner 
+# https://gitlab.com/peterpt/eternal_scanner 
 #
 # Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
 # https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
@@ -221,9 +221,9 @@ echo "$tempf" > "$defdir/$vulnertmp"
 tr " " "\n" <$defdir/$vulnertmp >$defdir/$vulner
 rm -f "$defdir/$vulnertmp" >/dev/null 2>&1
 mv $defdir/$vulner $defdir/$vulnertmp >/dev/null 2>&1
-lm=$(cat $defdir/$vulnertmp | wc -l)
+lm=$(wc -l < $defdir/$vulnertmp)
 $eromance > $defdir/$temp1 2>&1
-chker=$(cat $defdir/$temp1 | grep "ImportError" | awk '{print$5}')
+chker=$(grep "ImportError" < $defdir/$temp1 | awk '{print$5}')
 if [[ ! -z "$chker" ]]
 then
 echo -e "$yellow" "Dependency Missing : $chker"
@@ -243,7 +243,7 @@ for i in $(seq "$lm")
 do
 lg=$defdir/erlog.txt
 rm $lg >/dev/null 2>&1
-var=$(cat $defdir/$vulnertmp | awk -v nb=$i 'NR==nb')
+var=$(awk -v nb=$i 'NR==nb' < $defdir/$vulnertmp)
 echo -ne "$cyan""IP$yellow $i$cyan from$yellow $lm$cyan :$green $var$cyan --> "
 chker
 done 
@@ -257,7 +257,7 @@ fi
 # Database search function
 schos(){
 clear
-if [ ! -f "$defdir/$vulnos" ]
+if [[ ! -f "$defdir/$vulnos" ]]
 then
 logo
 echo ""
@@ -297,20 +297,20 @@ echo -e "$yellow""Search results for : $green $srch"
 echo -e "$orange""*****************************************************$green"
 echo -e "$orange""***************$cyan Eternal Blue Results$orange ****************"
 echo -e "$orange""*****************************************************$green"
-var=$(cat "$defdir/$vulnos" | grep "$srch" | sed -e "s/:445//g")
-lc=$(cat "$defdir/$vulnos" | grep "$srch" | sed -e "s/:445//g" | wc -l)
+var=$(grep "$srch" < "$defdir/$vulnos" | sed -e "s/:445//g")
+lc=$(grep "$srch" < "$defdir/$vulnos" | sed -e "s/:445//g" | wc -l)
 
-if [[ -f $defdir/$vulner ]]
+if [[ -f "$defdir/$vulner" ]]
 then
-var1=$(cat "$defdir/$vulner" | grep "$srch")
-lc1=$(cat "$defdir/$vulner" | grep "$srch" | wc -l)
+var1=$(grep "$srch" < "$defdir/$vulner")
+lc1=$(grep "$srch" < "$defdir/$vulner" | wc -l)
 fi
 
 if [[ -z "$var" ]]
 then
 echo -e "$yellow" "No results found with search term : $srch"
 else
-cat "$defdir/$vulnos" | grep "$srch" | sed -e "s/:445//g"
+grep "$srch" < "$defdir/$vulnos" | sed -e "s/:445//g"
 echo -e "$orange""*****************************************************"
 echo -e "$cyan" "Found :$yellow $lc$cyan Eternal Blue Results"
 echo -e "$green"""
@@ -321,7 +321,7 @@ then
 echo -e "$orange""*****************************************************"
 echo -e "$orange""*************$cyan Eternal Romance Results$orange ***************"
 echo -e "$orange""*****************************************************$green"
-cat "$defdir/$vulner" | grep "$srch"
+grep "$srch" < "$defdir/$vulner"
 echo -e "$orange""*****************************************************"
 echo -e "$cyan" "Found :$yellow $lc1$cyan Eternal Romance Results"
 echo -e "$green" ""
@@ -416,20 +416,20 @@ fi
 
 # Function to extract data from metasploit results 
 getdata(){
-vuln0=$(cat $defdir/$msflog | grep "MS17-010" | awk '{print$2}')
-vuln1=$(cat $defdir/$msflog | grep "MS17-010" | awk '{print$2}' | sed -n 1p)
-vuln2=$(cat $defdir/$msflog | grep "MS17-010" | awk '{$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}')
-vuln3=$(cat $defdir/$msflog | grep "Arch" | awk '{$1=$3=$4=$5=$6=$7=$8=$9=$10=$11=$13=$14=$15=$16=""; print $0}')
+vuln0=$(grep "MS17-010" < $defdir/$msflog | awk '{print$2}')
+vuln1=$(grep "MS17-010" < $defdir/$msflog | awk '{print$2}' | sed -n 1p)
+vuln2=$(grep "MS17-010" < $defdir/$msflog | awk '{$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}')
+vuln3=$(grep "Arch" < $defdir/$msflog | awk '{$1=$3=$4=$5=$6=$7=$8=$9=$10=$11=$13=$14=$15=$16=""; print $0}')
 vtmp="$defdir/$vulndptmp"
-if [ -z "$vuln1" ]
+if [[ -z "$vuln1" ]]
 then
 echo ""
 echo -e "$red" "No vulnerable targets were detected from the list "
 delf
 else
-if [ ! -z "$vuln3" ]
+if [[ ! -z "$vuln3" ]]
 then
-if [ ! -f "$defdir/$vulndp" ]
+if [[ ! -f "$defdir/$vulndp" ]]
 then
 echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $defdir/$vulndp
 echo "------------------------------------------------------------------------------" >> $defdir/$vulndp
@@ -444,7 +444,7 @@ awk '!a[$0]++' $defdir/$vulndptmp >> $defdir/$vulndp 2>&1
 rm -f $defdir/$vulndptmp >/dev/null 2>&1
 fi
 fi
-if [ ! -f "$defdir/$vulnos" ]
+if [[ ! -f "$defdir/$vulnos" ]]
 then
 echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $defdir/$vulnos
 echo "------------------------------------------------------------------------------" >> $defdir/$vulnos
@@ -459,7 +459,7 @@ awk '!a[$0]++' $defdir/$vulnostmp >> $defdir/$vulnos 2>&1
 rm -f $defdir/$vulnostmp >/dev/null 2>&1
 fi
 
-if [ -f "$defdir/$vuln" ]
+if [[ -f "$defdir/$vuln" ]]
 then
 echo "$vuln0" > $defdir/$vulntmp
 
@@ -479,12 +479,12 @@ awk '!a[$0]++' $defdir/$vuln > $defdir/$vulntmp 2>&1
 rm -f $defdir/$vuln && mv $defdir/$vulntmp $defdir/$vuln >/dev/null 2>&1
 
 # count number of lines in file
-lm=$(cat $defdir/temp1.txt | wc -l)
+lm=$(wc -l < $defdir/temp1.txt)
 echo ""
 echo -e "$green" "$lm Vulnerable ips found"
 echo "---------------------------------------"
 # Display the positive results
-cat "$defdir/temp1.txt" | sed -e "s/:445//g"
+sed -e "s/:445//g" < "$defdir/temp1.txt"
 echo "---------------------------------------"
 echo -e "$yellow" "Eternal Scanner saved the vulnerable ips to $defdir/$vuln"
 
@@ -500,12 +500,12 @@ tr " " "\n" <$defdir/temp1.txt >>$defdir/$vuln
 rm -f $defdir/$vulntmp >/dev/null 2>&1
 
 # count number of lines in file
-lm=$(cat $defdir/temp1.txt | wc -l)
+lm=$(wc -l < $defdir/temp1.txt)
 echo ""
 echo -e "$green" "$lm Vulnerable ips found"
 echo "---------------------------------------"
 # Display the positive results
-cat "$defdir/temp1.txt" | sed -e "s/:445//g"
+sed -e "s/:445//g" < "$defdir/temp1.txt"
 echo "---------------------------------------"
 echo -e "$yellow" "Eternal Scanner saved the vulnerable ips to $defdir/$vuln"
 sleep 3
@@ -532,7 +532,7 @@ echo ""
 
 #count number of lines in 1st splitted ip list
 
-lc=$(cat "$defdir/x$i" | wc -l)
+lc=$(wc -l < "$defdir/x$i" )
 echo -e "$green" "Checking ip list $i of $tms"
 echo -e "$yellow" "----------------------------"
 cat "$defdir/x$i"
@@ -556,7 +556,7 @@ done
 
 #Function for metasploit single or less than 500 ips to be scanned
 msfn(){
-lc=$(cat "$defdir/msfip" | wc -l)
+lc=$(wc -l < "$defdir/msfip" )
 if [ "$lc" -gt "100" ]
 then
 thr="10"
@@ -693,7 +693,7 @@ then
 echo -e "$yellow" "Scanner results not found"
 exit 1
 fi
-cat "$mass" | grep 'addr=' | awk '{print $3}' | sed -e s/addr=//g |  cut -d '"' -f 2 | tr " " "\n" >$defdir/msfip
+grep 'addr=' < "$mass" | awk '{print $3}' | sed -e s/addr=//g |  cut -d '"' -f 2 | tr " " "\n" >$defdir/msfip
 msfips="$defdir/msfip"
 
 #check if there was any ip detected with port $port opened
@@ -710,7 +710,7 @@ echo -e "$green" ""
 cat "$defdir/msfip"
 echo ""
 echo -e "$yellow" "----------------------------"
-lc=$(cat $defdir/msfip | wc -l)
+lc=$(wc -l < $defdir/msfip)
 echo "Collected $lc ips"
 echo -e "$yellow" "Checking if the $lc ips are vulnerable"
 sleep 4
@@ -804,7 +804,7 @@ echo -e "$orange" "Displaying Vulnerability IP file"
 echo -e "$yellow" "Currently stored in $defdir"
 echo -e "$cyan" "+----------------------------------------------+"
 echo -e "$green" ""
-cat "$defdir/$vuln" | sed -e "s/:445//g"
+sed -e "s/:445//g" < "$defdir/$vuln"
 echo -e "$cyan" "+----------------------------------------------+"
 nmip=$(tail -n+3 $defdir/$vuln | wc -l )
 echo -e "$orange" "Found $yellow $nmip $orange Records"
@@ -825,8 +825,8 @@ echo -e "$orange" "Displaying Detailed OS Vulnerability IP file"
 echo -e "$yellow" "Currently stored in $defdir"
 echo -e "$cyan" "+----------------------------------------------+"
 echo -e "$green" ""
-cat "$defdir/$vulnos" | sed -e "s/:445//g"
-nmip=$(cat $defdir/$vuln | wc -l)
+sed -e "s/:445//g" < "$defdir/$vulnos" 
+nmip=$(wc -l < $defdir/$vuln)
 echo -e "$cyan" "+----------------------------------------------+"
 echo -e "$orange" "Found $yellow $nmip $orange Records"
 exit 1
@@ -863,11 +863,11 @@ which wget > /dev/null 2>&1
       if [ "$?" -eq "1" ]; then
 apt-get install wget -y > /dev/null 2>&1
 fi
-wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/check -O $defdir/check > /dev/null 2>&1
-wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/mysmb.py  -O $defdir/mysmb.py > /dev/null 2>&1
-wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/mysmb.pyc -O $defdir/mysmb.pyc > /dev/null 2>&1
-wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/escan -O $es > /dev/null 2>&1
-wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/elog -O $el > /dev/null 2>&1
+wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/check -O $defdir/check > /dev/null 2>&1
+wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/mysmb.py  -O $defdir/mysmb.py > /dev/null 2>&1
+wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/mysmb.pyc -O $defdir/mysmb.pyc > /dev/null 2>&1
+wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/escan -O $es > /dev/null 2>&1
+wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/elog -O $el > /dev/null 2>&1
 chmod +x $es >/dev/null 2>&1
 chmod +x $el >/dev/null 2>&1
 echo ""
@@ -893,7 +893,7 @@ fi
 if [ "$1" == "-h" ]
 then
 echo "Eternal Scanner $vers - 2017"
-echo "(https://github.com/peterpt/eternal_scanner)"
+echo "(https://gitlab.com/peterpt/eternal_scanner)"
 echo "----------------------------------------------------"
 echo "Available Switches :"
 echo ""
@@ -905,7 +905,7 @@ echo "escan -er (Verify if ips in vuln.txt are vulnerable to Eternal Romance Vul
 echo "escan -l  (To search in database)"
 echo "escan -v  (Display current vulnerable ip list on screen)"
 echo "escan -vo (Display current vulnerable detailed OS ip list on screen)"
-echo "escan -u  (Update Eternal Scanner binaries from github)"
+echo "escan -u  (Update Eternal Scanner binaries from gitlab)"
 echo "escan -h  (This screen)"
 echo ""
 echo "Example : escan -i 192.168.1.1/24 -s 3000 (for 3000 packets /s)"
@@ -964,7 +964,7 @@ echo "No iplist found in : $out"
 else
 delf
 cp "$out" "$defdir/msfip"
-msfi=$(cat $defdir/msfip | wc -l)
+msfi=$(wc -l < $defdir/msfip)
 if [ "$msfi" -gt "500" ]
 then
 chkdep

@@ -1,4 +1,4 @@
-# Project Moved to : https://gitlab.com/peterpt/Eternal_Scanner
+# Project moving to https://gitlab.com/peterpt/Eternal_Scanner
 
 ## ETERNAL SCANNER 2.3
 
@@ -29,7 +29,7 @@ Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 & E
 - python-pyasn1-modules (Dependency for Eternal Romance check)
 
 # How to Install
-- git clone https://github.com/peterpt/eternal_scanner.git
+- git clone https://gitlab.com/peterpt/Eternal_Scanner.git
 - cd eternal_scanner && ./escan
 - OR ./escan -h (to change scanner speed)
 

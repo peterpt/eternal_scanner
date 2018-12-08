@@ -1,5 +1,7 @@
  ## ETERNAL SCANNER (Changelog)
 
+* v2.3 - Optimized Code
+* v2.3 - Changes in Log check from MSF to make escan compatible with msf5
 * v2.3 - Code Revision , enchanded user information added
 * v2.3 - Number of ips with port 445 opened will be displayed while scanner is running
 * v2.2 - Number of ips in vulnerable list will display at the end when user write (escan -v or escan -vo"
