@@ -16,7 +16,12 @@ defdir="/usr/local/share/Eternal_Scanner"
 
 # Default file that defines which program is running
 masstat="$defdir/stat"
-
+if [[ ! -f "$masstat" ]]
+then
+echo -e "$green""Elog is a dependency from Eternal Scanner"
+echo -e "Run escan instead"
+exit 1
+fi
 stat=$(sed -n '1p' < $masstat)
 
 echo ""
