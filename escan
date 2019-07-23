@@ -863,11 +863,11 @@ which wget > /dev/null 2>&1
       if [ "$?" -eq "1" ]; then
 apt-get install wget -y > /dev/null 2>&1
 fi
-wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/check -O $defdir/check > /dev/null 2>&1
-wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/mysmb.py  -O $defdir/mysmb.py > /dev/null 2>&1
-wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/mysmb.pyc -O $defdir/mysmb.pyc > /dev/null 2>&1
-wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/escan -O $es > /dev/null 2>&1
-wget https://gitlab.com/peterpt/Eternal_Scanner/raw/master/elog -O $el > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/check -O $defdir/check > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/mysmb.py  -O $defdir/mysmb.py > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/mysmb.pyc -O $defdir/mysmb.pyc > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/escan -O $es > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/elog -O $el > /dev/null 2>&1
 chmod +x $es >/dev/null 2>&1
 chmod +x $el >/dev/null 2>&1
 echo ""
@@ -893,7 +893,7 @@ fi
 if [ "$1" == "-h" ]
 then
 echo "Eternal Scanner $vers - 2017"
-echo "(https://gitlab.com/peterpt/eternal_scanner)"
+echo "(https://github.com/peterpt/eternal_scanner)"
 echo "----------------------------------------------------"
 echo "Available Switches :"
 echo ""
@@ -905,7 +905,7 @@ echo "escan -er (Verify if ips in vuln.txt are vulnerable to Eternal Romance Vul
 echo "escan -l  (To search in database)"
 echo "escan -v  (Display current vulnerable ip list on screen)"
 echo "escan -vo (Display current vulnerable detailed OS ip list on screen)"
-echo "escan -u  (Update Eternal Scanner binaries from gitlab)"
+echo "escan -u  (Update Eternal Scanner binaries from github)"
 echo "escan -h  (This screen)"
 echo ""
 echo "Example : escan -i 192.168.1.1/24 -s 3000 (for 3000 packets /s)"
