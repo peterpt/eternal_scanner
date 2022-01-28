@@ -1,5 +1,3 @@
-# Project moving to https://gitlab.com/peterpt/Eternal_Scanner
-
 ## ETERNAL SCANNER 2.3
 
 Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 & Eternal Romance (named pipe) CVE-2017-0145 .
