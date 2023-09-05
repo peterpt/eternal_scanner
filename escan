@@ -397,11 +397,11 @@ exit 1
 fi 
 
 # Python checks for Eternal Romance Vulnerability check to be implemented
-which python > /dev/null 2>&1
+which python3 > /dev/null 2>&1
       if [ "$?" -eq "1" ]; then
-   echo -e "$red" "Python Missing"
+   echo -e "$red" "Python3 Missing"
 echo ""
-echo -e "$yellow" "Try : apt-get install python"
+echo -e "$yellow" "Try : apt-get install python3"
 exit 1
 fi 
 
@@ -409,7 +409,7 @@ which pip > /dev/null 2>&1
       if [ "$?" -eq "1" ]; then
    echo -e "$red" "Pip Missing"
 echo ""
-echo -e "$yellow" "Try : apt-get install python-pip"
+echo -e "$yellow" "Try : apt-get install python3-pip"
 exit 1
 fi 
 }
