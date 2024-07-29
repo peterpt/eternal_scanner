@@ -44,6 +44,7 @@ For python modules as alernative it can be used pip to install the libraries :
 and use another escan session terminal to search in database by writing ( escan -l)
 - Escan will run normally as before if eternal Romance dependencies are not installed , 
   however (escan -er) will not work without them .
+- Escan requires /usr/local/sbin on your PATH environment in case you are not a root user
 
 * From Version 2.2
 - Eternal Romance Vulnerability check original source : https://github.com/worawit/MS17-010
