@@ -1,4 +1,4 @@
-## ETERNAL SCANNER 2.3
+## ETERNAL SCANNER 2.4
 
 Eternal scanner is an network scanner for Eternal Blue exploit CVE-2017-0144 & Eternal Romance (named pipe) CVE-2017-0145 .
 
