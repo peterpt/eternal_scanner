@@ -1,5 +1,6 @@
  ## ETERNAL SCANNER (Changelog)
-
+* v2.4 - Old version split the amount of ips collected and send list by list to metasploit to check them , this version does not split ips files anymore and send 1 single file to metasploit to be analysed 
+* v2.4 - Without root previleges the tool will not work or run
 * v2.3 - Optimized Code
 * v2.3 - Changes in Log check from MSF to make escan compatible with msf5
 * v2.3 - Code Revision , enchanded user information added
