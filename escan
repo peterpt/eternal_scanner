@@ -1,0 +1,1019 @@
+#!/bin/bash  
+# Eternal Scanner 2.4 by peterpt             
+# https://gitlab.com/peterpt/eternal_scanner 
+#
+# Eternal Scanner scans a network looking for vulnerable windows machines to the exploit CVE-2017-0144
+# https://www.cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144
+#
+
+#-------------Variables---------------------------
+path=$(pwd)
+
+#setup colors
+cyan='\e[0;36m'
+green='\033[92m'
+red='\e[1;31m'
+yellow='\e[0;33m'
+orange='\e[38;5;166m'
+rt="500"
+#Current Version
+vers="2.4"
+
+if [ "$EUID" -ne 0 ]
+  then 
+  root="n"
+  else
+  root="y"
+  fi
+
+# Set Default Data directory
+
+# Root access is required to run this tool , the reason is that ahead on script some
+# tools need to write output files , like masscan , and a non-root user 
+# is unable to pipe output to a file 
+# if you change the code to bypass this check then script will break
+# when masscan starts if you are not a root user
+
+if [[ "$root" == "y" ]]
+then
+defdir="/usr/local/share/Eternal_Scanner"
+else
+echo "This tool does not run without Root Access"
+exit 0
+fi
+# Set default Scanner Speed
+rt="500"
+
+# Set Default Port
+port="445"
+
+# Files copied in instalation
+fls="0"
+
+# Variables for Data files & temp files
+vuln="vuln.txt"
+vulnos="vuln_OS.txt"
+vulndp="vuln_DP.txt"
+vulntmp="vulntmp.txt"
+vulner="vulner.txt"
+vulnertmp="vulner_tmp.txt"
+vulndptmp="vulndptmp.txt"
+msflog="msflog.log"
+temp1="temp1.txt"
+vuln1="vuln1.txt"
+vulnch="vulnch.txt"
+vulnostmp="vulnostmp.txt"
+temp="temp.txt"
+eromance="python3 $defdir/check"
+mass="$defdir/masscan"
+ip=""
+vm="0"
+massd="0"
+var2="0"
+# ------------------------------------------------------------------
+
+# CTRL+C Interrupt for scanner
+trap ctrl_c INT
+function ctrl_c() {
+if [ "$stat" == "1" ]
+then
+pkill -f masscan* >/dev/null 2>&1
+fi
+}
+
+chknet () {
+echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+echo -e "$yellow" "Opps , not connected to Internet"
+exit 1
+fi	
+}
+
+#Check install
+if [[ "$root" == "y" ]]
+then
+# Moving any current ip list file to install dir in case they exists
+  if [ ! -d "$defdir" ] 
+  then
+  mkdir "$defdir" >/dev/null 2>&1
+    if [ -f "$path/$vuln" ]
+    then
+    mv "$path/$vuln" "$defdir/" >/dev/null 2>&1
+    fls="1"
+    fi
+      if [ -f "$path/$vulndp" ]
+      then
+      mv "$path/$vulndp" "$defdir/" >/dev/null 2>&1
+      fi
+        if [ -f "$path/$vulnos" ]
+        then
+        mv "$path/$vulnos" "$defdir/" >/dev/null 2>&1
+        fi
+  fi
+  
+  if [ ! -f "$defdir/mysmb.py" ]
+  then
+    if [ -f "$path/mysmb.py" ]
+    then
+    cp "$path/mysmb.py" "$defdir/mysmb.py" >/dev/null 2>&1
+    chmod +x $defdir/mysmb.py >/dev/null 2>&1
+    fi
+  fi
+      if [ ! -f "$defdir/mysmb.pyc" ]
+      then
+        if [ -f "$path/mysmb.pyc" ]
+        then
+        cp "$path/mysmb.pyc" "$defdir/mysmb.pyc" >/dev/null 2>&1
+        chmod +x $defdir/mysmb.pyc >/dev/null 2>&1
+        fi
+      fi
+           if [ ! -f "$defdir/check" ]
+           then
+             if [ -f "$path/check" ]
+             then
+             cp "$path/check" "$defdir/check" >/dev/null 2>&1
+             chmod +x $defdir/check >/dev/null 2>&1
+             fi
+echo -e "$orange" "Updated : Eternal Scanner $vers"
+echo ""
+if [ $fls == "1" ]
+then
+echo -e "$green" "Your Eternal Scanner Data Files were moved to :"
+echo -e "$yellow""$defdir"
+echo -e ""
+echo -e "$yellow" "Press ENTER key To Continue"
+read -r cont
+echo ""
+cp escan /usr/local/sbin/ >/dev/null 2>&1
+cp elog /usr/local/sbin/ >/dev/null 2>&1
+echo ""
+echo -e "$green" "Eternal Scanner was installed in your system"
+echo ""
+echo -e "$orange" "Write (escan) or (escan -h) anywhere to run it."
+echo ""
+echo -e "$yellow" "Press ENTER key To Continue"
+read -r cont
+else
+cp escan /usr/local/sbin/ >/dev/null 2>&1
+cp elog /usr/local/sbin/ >/dev/null 2>&1
+echo ""
+echo -e "$green" "Eternal Scanner was installed in your system"
+echo ""
+echo -e "$orange" "Write (escan) or (escan -h) anywhere to run it."
+echo ""
+echo -e "$yellow" "Press ENTER key To Continue"
+read -r cont
+fi
+fi
+
+elif [[ "$root" == "n" ]]
+then
+echo "This program requires root previleges"
+exit 0
+fi
+
+warn() {
+if [[ $i -gt $wrn ]]
+then
+wrn=$((wrn+20))
+else
+if [[ $i == "$wrn" ]]
+then
+echo ""
+echo -e "$red""Press CTRL+Z To Stop The IP Check"
+echo ""
+fi
+fi
+}
+
+
+chker() {
+rm -rf $defdir/$temp1
+$eromance $var > $defdir/$temp1 2>&1
+
+# ip file to be created in current path with vulnerable ips
+ipl=$defdir/$vulner
+# Check from output if connection to ip had a timeout
+gtdata=$(cat $defdir/$temp1 | grep "timeout")
+if [[ ! -z $gtdata ]]
+then
+echo -e "$yellow Time Out / Offline"
+else
+gtdata=$(cat $defdir/$temp1 | grep "not patched")
+# timeout was not recieved , so check if ip is vulnerable
+if [[ ! -z $gtdata ]]
+then
+gos=$(cat $defdir/$temp1 | grep "Windows" | awk '{$1=$2=""; print $0}')
+echo -e "$green Vulnerable"
+if [[ -f $defdir/$vulner ]]
+then
+echo "$var | $gos" >> $ipl
+else
+echo "Vulnerable Ips to Eternal Romance Exploit (SMB V1)(MS17-010) - Scanned by Eternal Scanner" > $ipl
+echo "-----------------------------------------------------------------------------------------" >> $ipl
+echo "$var | $gos" >> $ipl
+fi
+else
+echo -e "$yellow Not Vulnerable"
+fi
+fi
+warn
+}
+
+etr() {
+wrn="0"
+f1="$defdir/check"
+f2="$defdir/mysmb.py"
+f3="$defdir/mysmb.pyc"
+if [ ! -f "$f1" ]
+then
+echo -e "$yellow""An Important dependency is missing ($cyan check$yellow file)"
+echo -e "$green""Write (escan -u) to update Eternal Scanner"
+exit 1
+fi
+if [ ! -f "$f2" ]
+then
+echo -e "$yellow""An Important dependency is missing ($cyan mysmb.py$yellow file)"
+echo -e "$green""Write (escan -u) to update Eternal Scanner"
+exit 1
+fi
+if [ ! -f "$f3" ]
+then
+echo -e "$yellow""An Important dependency is missing ($cyan mysmb.pyc$yellow file)"
+echo -e "$green""Write (escan -u) to update Eternal Scanner"
+exit 1
+fi
+if [ -f "$defdir/$vuln" ]
+then
+delf
+tempf=$(tail -n+3 $defdir/$vuln | sed -e "s/:445//g")
+echo "$tempf" > "$defdir/$vulnertmp"
+tr " " "\n" <$defdir/$vulnertmp >$defdir/$vulner
+rm -f "$defdir/$vulnertmp" >/dev/null 2>&1
+mv $defdir/$vulner $defdir/$vulnertmp >/dev/null 2>&1
+lm=$(wc -l < $defdir/$vulnertmp)
+$eromance > $defdir/$temp1 2>&1
+chker=$(grep "ImportError" < $defdir/$temp1 | awk '{print$5}')
+if [[ ! -z "$chker" ]]
+then
+echo -e "$yellow" "Dependency Missing : $chker"
+echo ""
+echo -e "$green" "Try : apt-get install python-crypto python-impacket python-pyasn1-modules"
+exit 1
+else
+echo -e "$green" "Eternal Romance (SMB V1) IP List Check"
+echo -e "$cyan" "Checking :$yellow $defdir/$vuln"
+echo -e "$orange""*****************************************************"
+echo -e "$cyan""Output file:$green $defdir/$vulner"
+echo -e "$orange""*****************************************************"
+echo ""
+echo -e "$red""Press CTRL+Z To Stop The IP Check"
+echo ""
+for i in $(seq "$lm")
+do
+lg=$defdir/erlog.txt
+rm $lg >/dev/null 2>&1
+var=$(awk -v nb=$i 'NR==nb' < $defdir/$vulnertmp)
+echo -ne "$cyan""IP$yellow $i$cyan from$yellow $lm$cyan :$green $var$cyan --> "
+chker
+done 
+fi
+else
+echo -e "$yellow" "Vulnerable Ip file was not yet created"
+exit 1
+fi
+}
+
+# Database search function
+schos(){
+clear
+if [[ ! -f "$defdir/$vulnos" ]]
+then
+logo
+echo ""
+echo -e "$yellow" "Database was not yet build. Use escan"
+exit 1
+else
+logo
+echo ""
+echo -e "$cyan" "Some search tips"
+echo ""
+echo -e "$orange""Windows 5.0 =$green Windows 2000"
+echo -e "$orange""Windows 5.1 =$green Windows XP 32bit"
+echo -e "$orange""Windows 5.2 =$green Windows XP 64bit"
+echo -e "$orange""Windows 6.0 =$green Windows Vista"
+echo -e "$orange""Windows 6.1 =$green Windows 7"
+echo -e "$orange""Windows 7 =$green Windows 7"
+echo -e "$orange""Embedded =$green Windows 7 Embedded"
+echo -e ""
+echo -e "$cyan""Write (exit) or press CTRL+Z to exit" 
+echo -e "$green"""
+echo -ne "Search Database : "
+read srch
+if [[ -z "$srch" ]]
+then
+echo ""
+echo -e "$yellow" "No input detected , write (exit) or press CTRL+Z to exit"
+echo -e "$green" ""
+read -p "Press [Enter] to Return"
+schos
+fi
+if [[ "$srch" == "exit" ]]
+then 
+exit 1
+else
+echo ""
+echo -e "$yellow""Search results for : $green $srch"
+echo -e "$orange""*****************************************************$green"
+echo -e "$orange""***************$cyan Eternal Blue Results$orange ****************"
+echo -e "$orange""*****************************************************$green"
+var=$(grep "$srch" < "$defdir/$vulnos" | sed -e "s/:445//g")
+lc=$(grep "$srch" < "$defdir/$vulnos" | sed -e "s/:445//g" | wc -l)
+
+if [[ -f "$defdir/$vulner" ]]
+then
+var1=$(grep "$srch" < "$defdir/$vulner")
+lc1=$(grep "$srch" < "$defdir/$vulner" | wc -l)
+fi
+
+if [[ -z "$var" ]]
+then
+echo -e "$yellow" "No results found with search term : $srch"
+else
+grep "$srch" < "$defdir/$vulnos" | sed -e "s/:445//g"
+echo -e "$orange""*****************************************************"
+echo -e "$cyan" "Found :$yellow $lc$cyan Eternal Blue Results"
+echo -e "$green"""
+fi
+
+if [[ ! -z $var1 ]]
+then
+echo -e "$orange""*****************************************************"
+echo -e "$orange""*************$cyan Eternal Romance Results$orange ***************"
+echo -e "$orange""*****************************************************$green"
+grep "$srch" < "$defdir/$vulner"
+echo -e "$orange""*****************************************************"
+echo -e "$cyan" "Found :$yellow $lc1$cyan Eternal Romance Results"
+echo -e "$green" ""
+fi
+read -p "Press [Enter] key to Return"
+schos
+fi
+fi
+}
+
+# Delete temporary files
+delf() {
+rm -rf "$defdir/temp1.txt" >/dev/null 2>&1
+rm -rf "$defdir/temp.txt" >/dev/null 2>&1
+rm -f "$defdir/masscan"  >/dev/null 2>&1
+rm -f "$defdir/msfip"  >/dev/null 2>&1
+rm -f "$defdir/msf.rc"  >/dev/null 2>&1
+rm -f "$defdir/msflog.log" >/dev/null 2>&1
+rm -f "$path/paused.conf" >/dev/null 2>&1
+rm -f "$defdir/pid.tmp" >/dev/null 2>&1
+rm -f "$defdir/x$i" >/dev/null 2>&1
+rm -f "$defdir/$vulnertmp" >/dev/null 2>&1
+rm -f "$defdir/stat" >/dev/null 2>&1
+}
+
+# Eternal Scanner Logo
+logo() {
+echo -e "$orange" "*****************************************"
+echo -e "$orange" "*$green ▄▄▄ .▄▄▄▄▄▄▄▄ .▄▄▄   ▐ ▄  ▄▄▄· ▄▄▌    $orange*"     
+echo -e "$orange" "*$green ▀▄.▀·•██  ▀▄.▀·▀▄ █·•█▌▐█▐█ ▀█ ██•    $orange*"   
+echo -e "$orange" "*$green ▐▀▀▪▄ ▐█.▪▐▀▀▪▄▐▀▀▄ ▐█▐▐▌▄█▀▀█ ██▪    $orange*"   
+echo -e "$orange" "*$green ▐█▄▄▌ ▐█▌·▐█▄▄▌▐█•█▌██▐█▌▐█ ▪▐▌▐█▌▐▌  $orange*"   
+echo -e "$orange" "*$green  ▀▀▀  ▀▀▀  ▀▀▀ .▀  ▀▀▀ █▪ ▀  ▀ .▀▀▀   $orange*"   
+echo -e "$orange" "*$green .▄▄ ·  ▄▄·  ▄▄▄·  ▐ ▄  ▐ ▄ ▄▄▄ .▄▄▄   $orange*"   
+echo -e "$orange" "*$green ▐█ ▀. ▐█ ▌▪▐█ ▀█ •█▌▐█•█▌▐█▀▄.▀·▀▄ █· $orange*"   
+echo -e "$orange" "*$green ▄▀▀▀█▄██ ▄▄▄█▀▀█ ▐█▐▐▌▐█▐▐▌▐▀▀▪▄▐▀▀▄  $orange*"   
+echo -e "$orange" "*$green ▐█▄▪▐█▐███▌▐█ ▪▐▌██▐█▌██▐█▌▐█▄▄▌▐█•█▌ $orange*"   
+echo -e "$orange" "*$green  ▀▀▀▀ ·▀▀▀  ▀  ▀ ▀▀ █▪▀▀ █▪ ▀▀▀ .▀  ▀ $orange*"
+echo -e "$orange" "*****************************************"
+echo -e "$orange" "*$green        Current Version :$yellow $vers          $orange*"
+echo -e "$orange" "*****************************************"
+}
+
+# Check Eternal Scanner dependencies
+chkdep() {
+which msfconsole > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+   echo -e "$red" "Metasploit Framework Missing"
+echo ""
+echo -e "$yellow" "Try : apt-get install metasploit-framework"
+exit 1
+fi  
+which nc > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+   echo -e "$red" "Netcat Missing"
+echo ""
+echo -e "$yellow" "Try : apt-get install netcat"
+exit 1
+fi  
+which masscan > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+   echo -e "$red" "Masscan Missing"
+echo ""
+echo -e "$yellow" "Try : apt-get install masscan"
+exit 1
+fi 
+which wget > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+   echo -e "$red" "Wget Missing"
+echo ""
+echo -e "$yellow" "Try : apt-get install wget"
+exit 1
+fi 
+
+# Python checks for Eternal Romance Vulnerability check to be implemented
+which python3 > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+   echo -e "$red" "Python3 Missing"
+echo ""
+echo -e "$yellow" "Try : apt-get install python3"
+exit 1
+fi 
+
+which pip > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+   echo -e "$red" "Pip Missing"
+echo ""
+echo -e "$yellow" "Try : apt-get install python3-pip"
+exit 1
+fi 
+}
+
+# Function to extract data from metasploit results 
+getdata(){
+vuln0=$(grep "MS17-010" < $defdir/$msflog | awk '{print$2}')
+vuln1=$(grep "MS17-010" < $defdir/$msflog | awk '{print$2}' | sed -n 1p)
+vuln2=$(grep "MS17-010" < $defdir/$msflog | awk '{$1=$3=$4=$5=$6=$7=$8=$9=""; print $0}')
+vuln3=$(grep "Arch" < $defdir/$msflog | awk '{$1=$3=$4=$5=$6=$7=$8=$9=$10=$11=$13=$14=$15=$16=""; print $0}')
+vtmp="$defdir/$vulndptmp"
+if [[ -z "$vuln1" ]]
+then
+echo ""
+echo -e "$red" "No vulnerable targets were detected from the list "
+delf
+else
+if [[ ! -z "$vuln3" ]]
+then
+if [[ ! -f "$defdir/$vulndp" ]]
+then
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $defdir/$vulndp
+echo "------------------------------------------------------------------------------" >> $defdir/$vulndp
+echo "             Doublepulsar Implanted Hosts & Architectures                     " >> $defdir/$vulndp
+echo "+----------------------------------------------------------------------------+" >> $defdir/$vulndp
+echo "$vuln3" >> "$defdir/$vulndptmp"
+awk '!a[$0]++' $defdir/$vulndptmp > $defdir/$vulndp 2>&1
+rm -f $defdir/$vulndptmp >/dev/null 2>&1
+else
+echo "$vuln3" > "$defdir/$vulndptmp"
+awk '!a[$0]++' $defdir/$vulndptmp >> $defdir/$vulndp 2>&1
+rm -f $defdir/$vulndptmp >/dev/null 2>&1
+fi
+fi
+if [[ ! -f "$defdir/$vulnos" ]]
+then
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $defdir/$vulnos
+echo "------------------------------------------------------------------------------" >> $defdir/$vulnos
+echo "             Detailed Vulnerable IP & Operating System File                   " >> $defdir/$vulnos
+echo "+----------------------------------------------------------------------------+" >> $defdir/$vulnos
+echo "$vuln2" >> "$defdir/$vulnostmp"
+awk '!a[$0]++' $defdir/$vulnostmp > $defdir/$vulnos 2>&1
+rm -f $defdir/$vulnostmp >/dev/null 2>&1
+else
+echo "$vuln2" > "$defdir/$vulnostmp"
+awk '!a[$0]++' $defdir/$vulnostmp >> $defdir/$vulnos 2>&1
+rm -f $defdir/$vulnostmp >/dev/null 2>&1
+fi
+
+if [[ -f "$defdir/$vuln" ]]
+then
+echo "$vuln0" > $defdir/$vulntmp
+
+# Open the temporary file and filter all ips to one on each line
+tr " " "\n" <$defdir/$vulntmp >$defdir/temp1.txt
+
+#Write new detections to last line in vuln.txt
+
+tr " " "\n" <$defdir/temp1.txt >>$defdir/$vuln
+
+rm -f "$defdir/$vulntmp" >/dev/null 2>&1
+# Remove duplicates
+ 
+awk '!a[$0]++' $defdir/$vuln > $defdir/$vulntmp 2>&1
+
+# Remove old vuln.txt file and write the new one without duplicates
+rm -f $defdir/$vuln && mv $defdir/$vulntmp $defdir/$vuln >/dev/null 2>&1
+
+# count number of lines in file
+lm=$(wc -l < $defdir/temp1.txt)
+echo ""
+echo -e "$green" "$lm Vulnerable ips found"
+echo "---------------------------------------"
+# Display the positive results
+sed -e "s/:445//g" < "$defdir/temp1.txt"
+echo "---------------------------------------"
+echo -e "$yellow" "Eternal Scanner saved the vulnerable ips to $defdir/$vuln"
+
+else
+echo "$vuln0" > "$defdir/$vulntmp"
+rm -f "$defdir/$msflog" >/dev/null 2>&1
+tr " " "\n" <$defdir/$vulntmp >$defdir/temp1.txt
+
+#no vuln. file exists , create a new one
+echo "Vulnerable Ips to Eternal Blue exploit (MS17-010) - Scanned by Eternal Scanner" > $defdir/$vuln 
+echo "------------------------------------------------------------------------------" >> $defdir/$vuln
+tr " " "\n" <$defdir/temp1.txt >>$defdir/$vuln
+rm -f $defdir/$vulntmp >/dev/null 2>&1
+
+# count number of lines in file
+lm=$(wc -l < $defdir/temp1.txt)
+echo ""
+echo -e "$green" "$lm Vulnerable ips found"
+echo "---------------------------------------"
+# Display the positive results
+sed -e "s/:445//g" < "$defdir/temp1.txt"
+echo "---------------------------------------"
+echo -e "$yellow" "Eternal Scanner saved the vulnerable ips to $defdir/$vuln"
+sleep 3
+fi
+fi
+delf
+}
+
+#Function for Metasploit multiple files scan (bigger that 500 ips)
+msfm(){
+if [ "$lc" -le "50" ]
+then
+thr="10"
+fi
+rm $defdir/msf.rc >/dev/null 2>&1  
+echo "spool $defdir/msflog.log" > $defdir/msf.rc
+echo "use auxiliary/scanner/smb/smb_ms17_010" >> $defdir/msf.rc
+echo "set RHOSTS file://$msfips" >> $defdir/msf.rc
+echo "set rport $port" >> $defdir/msf.rc
+echo "set threads $thr" >> $defdir/msf.rc
+echo "exploit" >> $defdir/msf.rc
+echo "quit -y" >> $defdir/msf.rc
+echo ""
+
+#count number of lines in 1st splitted ip list
+
+
+echo -e "$green" "Checking Scanned Ip List"
+echo -e "$yellow" "----------------------------"
+cat "$msfips"
+echo -e "$yellow" "----------------------------"
+echo ""
+echo -e "$green" "Press CTRL+C (1X ONLY) to stop vulnerability check"
+echo -e "$green" "(aborting this process now will not verify all ips)"
+echo ""
+echo -e "\033[33;7mPlease Wait , checking $lc ips may take a while\033[0m"
+stat="2"
+
+# Execute msfconsole script , get PID from msfconsole and start elog
+rm -rf "$defdir/stat" >/dev/null 2>&1
+echo "2" > $defdir/stat 
+
+msfconsole -r $defdir/msf.rc >/dev/null 2>&1 & echo $! > $defdir/pid.tmp & elog
+sleep 2
+getdata
+sleep 4
+
+}
+
+#Function for metasploit single or less than 500 ips to be scanned
+msfn(){
+lc=$(wc -l "$msfips" | awk '{print$1}')
+if [ "$lc" -gt "100" ]
+then
+thr="20"
+fi
+echo "spool $defdir/$msflog" > "$defdir/msf.rc"
+echo "use auxiliary/scanner/smb/smb_ms17_010" >> "$defdir/msf.rc"
+echo "set RHOSTS file://$msfips" >> "$defdir/msf.rc"
+echo "set rport $port" >> "$defdir/msf.rc"
+echo "set threads $thr" >> "$defdir/msf.rc"
+echo "exploit" >> "$defdir/msf.rc"
+echo "quit -y" >> "$defdir/msf.rc"
+echo ""
+echo -e "$green" "Press CTRL+C (1X ONLY) to stop ips vulnerability check"
+echo -e "$green" "(aborting this process will not verify all ips)"
+echo ""
+echo -e "\033[33;7mPlease Wait , checking $lc ips may take a while\033[0m"
+stat="2"
+rm -rf "$defdir/stat" >/dev/null 2>&1
+echo "2" > $defdir/stat
+msfconsole -r $defdir/msf.rc >/dev/null 2>&1 & echo $! > $defdir/pid.tmp & elog
+sleep 2
+getdata
+}
+
+# Function for masscan ip scanner
+mass(){
+echo ""
+echo -e "$orange" "For switches write (escan -h)"
+echo -e "$cyan" "Config Port:$yellow $port$cyan | Rate Speed:$yellow $rt$cyan pkt/s"
+delf
+
+echo ""
+if [[ -z "$ip" ]]
+then
+echo -e "$orange" "Enter IP or IP range ."
+echo -e "$orange" "Example 1 :$cyan 192.168.1.32"
+echo -e "$orange" "Example 2 :$cyan 192.168.1.1/24"
+echo ""
+echo -ne "$green" "IP/IP Range : ";tput sgr0
+read -r ip
+fi
+echo ""
+echo -e "$cyan" "User IP Input :$yellow $ip"
+echo ""
+#check if user input is empty
+if [[ -z "$ip" ]]
+then
+echo ""
+echo -e "$yellow" "Invalid IP/IP Range"
+exit 1
+fi
+
+#check if user input have any letters
+inv=$(echo "$ip" | grep [a-zA-Z] )
+if [[ ! -z "$inv" ]]
+then
+echo ""
+echo -e "$yellow" "Invalid IP/IP Range" 
+exit 1
+fi
+
+echo ""
+val0="0.0.0.0"
+if [ "$ip" == "$val0" ]
+then
+echo -e "$red" "$ip is not valid"
+exit 1
+fi
+val="0.0.0.0/0"
+if [ "$ip" == "$val" ]
+then
+echo -e "$cyan" "Scanning all internet will take hours !"
+echo ""
+echo -ne "$green" "Do you still want to continue ? (y/N) : ";tput sgr0
+read -r opt
+echo ""
+case "$opt" in
+y|Y|yes|YES|Yes)
+echo -e "$green" "Press CTRL+C (1X ONLY) to stop the scanner "
+echo ""
+tn=$(date +"%H:%M:%S")
+echo -e "\033[33;7mScanner started at $tn , Please Wait\033[0m"
+rm -rf "$defdir/stat" >/dev/null 2>&1
+stat="1"
+echo "1" > $defdir/stat 
+masscan "$ip" -p "$port" --rate "$rt" --exclude 255.255.255.255 --output-filename "$mass" >/dev/null 2>&1 & echo $! > "$defdir/pid.tmp" & elog
+echo ""
+tst=$(date +"%H:%M:%S")
+echo -e "\033[33;7mScanner stopped/finished at $tst \033[0m"
+sleep 4
+;;
+n|N|No|NO)
+exit 1
+;;
+*)
+exit 1
+;;
+esac
+else
+echo -e "$green" "Press CTRL+C (1X ONLY) to stop the scanner "
+echo ""
+tn=$(date +"%H:%M:%S")
+echo -e "\033[33;7mScanner started at $tn , Please Wait\033[0m"
+rm -rf "$defdir/stat" >/dev/null 2>&1
+stat="1"
+echo "1" > $defdir/stat
+masscan "$ip" -p "$port" --rate "$rt" --output-filename "$mass" >/dev/null 2>&1 & echo $! > $defdir/pid.tmp & elog
+echo ""
+tst=$(date +"%H:%M:%S")
+echo -e "\033[33;7mScanner stopped/finished at $tst \033[0m"
+sleep 4
+fi
+if [ ! -f "$mass" ]
+then
+echo -e "$yellow" "Scanner results not found"
+exit 1
+fi
+grep 'addr=' < "$mass" | awk '{print $3}' | sed -e s/addr=//g |  cut -d '"' -f 2 | tr " " "\n" >$defdir/msfip
+msfips="$defdir/msfip"
+
+#check if there was any ip detected with port $port opened
+if [ ! -s "$msfips" ]
+then
+echo -e "$yellow" "It was not detected in $ip any port $port opened."
+exit 1
+fi
+stat="0"
+echo ""
+echo -e "$orange" "       Checking ips :"
+echo -e "$yellow" "----------------------------"
+echo -e "$green" ""
+cat "$msfips"
+echo ""
+echo -e "$yellow" "----------------------------"
+lc=$(wc -l < $msfips)
+echo "Collected $lc ips"
+echo -e "$yellow" "Checking if the $lc ips are vulnerable"
+sleep 4
+
+# If scanner ip list is bigger than 500 ips , then split the msfip list in multiple files with 500 ips each one
+if [ "$lc" -gt "500" ]
+then
+msfm
+thr="20"
+else
+if [ "$lc" -gt "20" ]
+then
+thr="5"
+else
+thr="1"
+fi
+msfn
+fi
+}
+
+# escan only written in terminal
+if [ -z "$1" ]
+then
+chknet
+chkdep
+logo
+mass
+exit 1
+fi
+
+if [ "$1" == "-er" ]
+then
+chknet
+chkdep
+logo
+etr
+exit 1
+fi
+
+#Switch for input ip
+if [ "$1" == "-i" ]
+then
+chknet
+if [ -z "$2" ]
+then
+escan -h
+echo -e "$yellow" "Value missing"
+echo ""
+echo -e "$green" "Try (escan -i 192.168.1.1)"
+exit 1
+else
+ip="$2"
+if [ -z "$3" ]
+then
+chkdep
+logo
+mass
+exit 1
+else
+if [ "$3" == "-s" ]
+then
+if [ -z "$4" ]
+then
+chkdep
+logo
+mass
+exit 1
+else
+if [[ "$4" -ge 100 && "$4" -le 100000000 ]]
+then
+rt="$4"
+chkdep
+logo
+mass
+exit 1
+else
+echo "Invalid argument , write escan -h for help"
+exit 1
+fi
+fi
+fi
+fi
+fi
+fi
+if [ "$1" == "-v" ]
+then
+if [ -f "$defdir/$vuln" ]
+then
+logo
+echo -e "$orange" "Displaying Vulnerability IP file"
+echo -e "$yellow" "Currently stored in $defdir"
+echo -e "$cyan" "+----------------------------------------------+"
+echo -e "$green" ""
+sed -e "s/:445//g" < "$defdir/$vuln"
+echo -e "$cyan" "+----------------------------------------------+"
+nmip=$(tail -n+3 $defdir/$vuln | wc -l )
+echo -e "$orange" "Found $yellow $nmip $orange Records"
+exit 1
+else
+echo -e "$yellow" "Vulnerability IP file list not yet available"
+echo -e "$green" "Scan for vulnerale hosts by writing (escan) on terminal"
+exit 1
+fi
+fi
+
+if [ "$1" == "-vo" ]
+then
+if [ -f "$defdir/$vulnos" ]
+then
+logo
+echo -e "$orange" "Displaying Detailed OS Vulnerability IP file"
+echo -e "$yellow" "Currently stored in $defdir"
+echo -e "$cyan" "+----------------------------------------------+"
+echo -e "$green" ""
+sed -e "s/:445//g" < "$defdir/$vulnos" 
+nmip=$(wc -l < $defdir/$vuln)
+echo -e "$cyan" "+----------------------------------------------+"
+echo -e "$orange" "Found $yellow $nmip $orange Records"
+exit 1
+else
+if [ -f "$defdir/$vuln" ]
+then
+echo -e "$green" "To display this file you must first write (escan -c) on terminal so your"
+echo -e "$green" "vulnerable ip list can be checked , and then you can use (escan -vo)"
+exit 1
+else
+echo -e "$green" "It was not found a vulnerable ip list , write (escan)"
+echo -e "$green" "on your terminal to find vulnerable hosts .)"
+exit 1
+fi
+fi
+fi
+if [ "$1" == "-u" ]
+then
+chknet
+# Check if eternal scanner is installed on a system path
+es=$(whereis escan |awk '{print$2}')
+el=$(whereis elog |awk '{print$2}')
+if [ -z $es ]
+then
+git pull origin master
+echo -e "$green" "Your Eternal Scanner was updated from Git"
+exit 1
+else
+echo -e "$yellow" "Found escan in : $es"
+echo -e "$yellow" "Found elog in : $el"
+rm -f $es >/dev/null 2>&1
+rm -f $el >/dev/null 2>&1
+which wget > /dev/null 2>&1
+      if [ "$?" -eq "1" ]; then
+apt-get install wget -y > /dev/null 2>&1
+fi
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/check -O $defdir/check > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/mysmb.py  -O $defdir/mysmb.py > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/mysmb.pyc -O $defdir/mysmb.pyc > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/escan -O $es > /dev/null 2>&1
+wget https://raw.githubusercontent.com/peterpt/eternal_scanner/master/elog -O $el > /dev/null 2>&1
+chmod +x $es >/dev/null 2>&1
+chmod +x $el >/dev/null 2>&1
+echo ""
+echo -e "$green" "Eternal Scanner Binaries where updated to your system"
+echo ""
+exit 1
+fi
+fi
+# escan -l switch activated
+if [ "$1" == "-l" ]
+then
+# check if vuln_OS.txt exists
+vfos="$defdir/vuln_OS.txt"
+if [ ! -f "$vfos" ]
+then 
+echo -e "$yellow" "Detailed vulerable ip list not builded yet , write (escan -c)"
+exit 1
+else
+schos
+fi
+fi
+# escan -h writen in terminal
+if [ "$1" == "-h" ]
+then
+echo "Eternal Scanner $vers - 2017"
+echo "(https://github.com/peterpt/eternal_scanner)"
+echo "----------------------------------------------------"
+echo "Available Switches :"
+echo ""
+echo "escan -i 192.168.1.1/24 (Scan Ip/Ip Range)"
+echo "escan -s  (Scanner speed Min: 100 Max: 10000000 /Default : 500)"
+echo "escan -c  (Verify if ips in vuln.txt are still vulnerable & update list)"
+echo "escan -ck /someiplistfile.txt (Will check current user manual ip list)"
+echo "escan -er (Verify if ips in vuln.txt are vulnerable to Eternal Romance Vulnerability)"
+echo "escan -l  (To search in database)"
+echo "escan -v  (Display current vulnerable ip list on screen)"
+echo "escan -vo (Display current vulnerable detailed OS ip list on screen)"
+echo "escan -u  (Update Eternal Scanner binaries from github)"
+echo "escan -h  (This screen)"
+echo ""
+echo "Example : escan -i 192.168.1.1/24 -s 3000 (for 3000 packets /s)"
+echo ""
+exit 1
+fi
+
+out="$2"
+
+if [ "$1" == "-c" ]
+then
+chknet
+if [ -f "$defdir/$vuln" ]
+then
+delf
+cp "$defdir/$vuln" "$defdir/vuln.bak" >/dev/null 2>&1
+cp "$defdir/$vulnos" "$defdir/vuln_OS.bak" >/dev/null 2>&1
+cp "$defdir/$vulndp" "$defdir/vuln_DP.bak" >/dev/null 2>&1
+rm -f "$defdir/$vulnos" >/dev/null 2>&1
+rm -f "$defdir/$vulndp" >/dev/null 2>&1
+msfi="$defdir/msfip"
+tempf=$(tail -n+3 $defdir/$vuln | sed -e "s/:445//g")
+echo "$tempf" > "$defdir/$vulntmp"
+tr " " "\n" <$defdir/$vulntmp >$msfi
+rm -f "$defdir/$vulntmp" >/dev/null 2>&1
+lm=$(cat $msfi | wc -l)
+rm -f "$defdir/$vuln" >/dev/null 2>&1
+if [ "$lm" -gt "500" ]
+then
+chkdep
+logo
+msfm
+else
+chkdep
+logo
+msfn
+fi
+else
+echo -e "$yellow" "Vulnerable Ip file was not yet created"
+exit 1
+fi
+fi
+
+if [ "$1" == "-ck" ]
+then
+chknet
+if [ -z "$out" ]
+then
+echo "No input iplist file to check."
+exit 1
+else
+if [ ! -f "$out" ]
+then
+echo "No iplist found in : $out"
+else
+delf
+cp "$out" "$defdir/msfips"
+msfips="$defdir/msfips"
+msfi=$(wc -l "$msfips" | awk '{print$1}')
+if [ "$msfi" -gt "500" ]
+then
+chkdep
+logo
+echo -e "$yellow" "Checking user input file : $out"
+msfm
+exit 1
+else
+chkdep
+logo
+echo -e "$yellow" "Checking user input file : $out"
+msfn
+exit 1
+fi
+fi
+fi
+fi
+if [ "$1" == "-s" ]
+then
+chknet
+if [ -z "$out" ]
+then
+echo "Invalid argument , write ./escan -h for help"
+exit 1
+else
+if [[ "$2" -ge 100 && "$2" -le 100000000 ]]
+then
+rt="$2"
+if [ -z "$3" ]
+then
+chkdep
+logo
+mass
+else
+echo "Invalid argument , write ./escan -h for help"
+exit 1
+fi
+fi
+fi
+fi
